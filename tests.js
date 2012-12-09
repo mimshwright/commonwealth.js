@@ -1,6 +1,6 @@
 module("Stateful creation methods", {
     setup: function () {
-        obj = _.extend(stateful, {
+        obj = new Stateful({
             methods: [
                         // define methods using string...
                         "methodsVarFunction_string",
@@ -18,21 +18,18 @@ module("Stateful creation methods", {
                         // object
                         {name: "methodsVarFunction_object", default: function() { return "default function"; } }
                      ],
-            c : {
-                 enter: function () {
-                     console.log("Entering State C");
-                 },
+            states : {                
+                c : {
+                     enter: function () {
+                         console.log("Entering State C");
+                     },
 
-                 manualMethod: function () {
-                     console.log("Manual C");
+                     manualMethod: function () {
+                         console.log("Manual C");
+                     }
                  }
-             }, 
-
-             manualMethod: function () {
-                 console.log("Ran manual method. Current state is " + this.getCurrentState());
-                 this.getCurrentState().manualMethod();
-             }
-         });
+            }
+         }); // end constructor.
          
          obj.a = {
              enter: function() {
@@ -66,7 +63,10 @@ module("Stateful creation methods", {
              }
          };
          
-         obj.init();
+         obj.manualMethod = function manualMethod () {
+              console.log("Ran manual method. Current state is " + this.getCurrentState());
+              this.getCurrentState().manualMethod();
+          }
     },
     teardown: function () {
 
@@ -74,7 +74,11 @@ module("Stateful creation methods", {
 });
 
 test( "Test state properties", function() {
-    ok (obj.getCurrentState() == null, "By default, the current state is null.");
+    equal (obj.getCurrentState(), null, "By default, the current state is null.");
+    obj.setCurrentState(obj.a);
+    equal (obj.getCurrentState(), obj.a, "Set current state affects getCurrentState()");
+    obj.setCurrentState(null);
+    equal (obj.getCurrentState(), null, "State can be set to null.");
 });
 
 test( "Passing in an object called methods to the extend function and calling init()", function () {
@@ -100,7 +104,7 @@ test( "Test addStateMethod", function () {
     obj.test("Foo");
     obj.sayHello("world");
 
-    equal(6, obj.calculate(1,2,3), "Functions from states return results.");
+    equal(obj.calculate(1,2,3), 6, "Functions from states return results.");
 
     obj.setCurrentState(obj.b);
     obj.test("Foo");
