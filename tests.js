@@ -1,6 +1,13 @@
+module("Dependencies");
+test ("Requires Underscore.js", function () {
+    ok (_, "Underscore is loaded.");
+});
+test ("Commonwealth", function () {
+    ok (commonwealth, "Commonwealth is loaded.");
+})
 module("Stateful creation methods", {
     setup: function () {
-        obj = new Stateful({
+        obj = new commonwealth.Stateful({
             methods: [
                         // define methods using string...
                         "methodsVarFunction_string",
