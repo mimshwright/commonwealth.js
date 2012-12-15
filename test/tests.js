@@ -8,6 +8,7 @@ test ("Commonwealth", function () {
 module("Stateful creation methods", {
     setup: function () {
         obj = new commonwealth.Stateful({
+            // define methods via constructor.
             methods: [
                         // define methods using string...
                         "methodsVarFunction_string",
@@ -17,13 +18,13 @@ module("Stateful creation methods", {
                             console.log ("named");
                         },
                         
+                        // object
+                        {name: "methodsVarFunction_object", default: function() { return "default function"; } }
+                        
                         // closure (should fail)
                         // function () {
                             // console.log ("anonymous");
-                        // },
-                        
-                        // object
-                        {name: "methodsVarFunction_object", default: function() { return "default function"; } }
+                        // }
                      ],
             states : {                
                 c : {
@@ -126,3 +127,9 @@ test( "Test addStateMethod", function () {
     obj.sayHello("world");
     obj.manualMethod();
 }); 
+test( "History", function () {
+   obj.setCurrentState(obj.a);
+   var previousState = obj.getCurrentState(); 
+   obj.setCurrentState(obj.b);
+   equal (obj.previousState, previousState, "Last state tracks the previous state of the stateful object.");
+});
