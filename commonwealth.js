@@ -4,10 +4,10 @@ var commonwealth = commonwealth || {};
 commonwealth.Stateful = function Stateful (options) {
     var currentState = null,
     that = this;
-        
-    _(this).extend(options.states);
     
-    this.previousState = null;
+    this.history = new commonwealth.History(this);
+    
+    _(this).extend(options.states);
     
     /**
     * Returns the current state.
@@ -23,23 +23,26 @@ commonwealth.Stateful = function Stateful (options) {
     this.setCurrentState = function setCurrentState (state) {
         var oldState = currentState,
             newState = state;
+        
+        if ( newState != oldState) {
+            if (oldState && _.isFunction(oldState["exit"])) {
+                oldState.exit();
+            }
+            this.history.addState(oldState);
+            currentState = newState;
 
-        if (oldState && _.isFunction(oldState["exit"])) {
-            oldState.exit();
+            if (newState && _.isFunction(newState["enter"])) {
+                newState.enter();
+            }
         }
-        this.previousState = oldState;
-        currentState = newState;
 
-        if (newState && _.isFunction(newState["enter"])) {
-            newState.enter();
-        }
     }
     
     // initialize the intance
     this.init(options);
 }
 
-commonwealth.Stateful.prototype.init = function (options) {
+commonwealth.Stateful.prototype.init = function init (options) {
   var methods = options.methods,
       elem, 
       method;
@@ -86,4 +89,31 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
     
         return result;
     }
+}
+
+/**
+ * Stateful history object.
+ * Responsible for recording references to the past states of a stateful
+ * object. 
+ * @param stateful A reference to the stateful object that this history represents.
+ */ 
+commonwealth.History = function History (stateful) {
+    var stateful = stateful;
+    
+    this.getStateful = function getStateful () {
+        return stateful;
+    }
+    
+    this.previousState;
+    this.states;
+    
+    this.clear();
+}
+commonwealth.History.prototype.clear = function clear () {
+    this.states = [];
+}
+
+commonwealth.History.prototype.addState = function addState (state) {
+    this.states.push(state);
+    this.previousState = state;
 }

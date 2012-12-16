@@ -1,3 +1,5 @@
+var stateful;
+
 module("Dependencies");
 test ("Requires Underscore.js", function () {
     ok (_, "Underscore is loaded.");
@@ -5,9 +7,9 @@ test ("Requires Underscore.js", function () {
 test ("Commonwealth", function () {
     ok (commonwealth, "Commonwealth is loaded.");
 })
-module("Stateful creation methods", {
+module("Stateful", {
     setup: function () {
-        obj = new commonwealth.Stateful({
+        stateful = new commonwealth.Stateful({
             // define methods via constructor.
             methods: [
                         // define methods using string...
@@ -35,11 +37,19 @@ module("Stateful creation methods", {
                      manualMethod: function () {
                          console.log("Manual C");
                      }
-                 }
+                }, 
+                enterExitTestState : {
+                    enter: function () {
+                        stateful.calledEnter = true;
+                    },
+                    exit: function () {
+                        stateful.calledExit = true;
+                    }
+                }
             }
          }); // end constructor.
          
-         obj.a = {
+         stateful.a = {
              enter: function() {
                  console.log("Entering state A");
              },
@@ -61,7 +71,7 @@ module("Stateful creation methods", {
                  return result;
              }
          };
-          obj.b = {
+          stateful.b = {
              enter: function() {
                  console.log("Entering state B");
              },
@@ -71,7 +81,7 @@ module("Stateful creation methods", {
              }
          };
          
-         obj.manualMethod = function manualMethod () {
+         stateful.manualMethod = function manualMethod () {
               console.log("Ran manual method. Current state is " + this.getCurrentState());
               this.getCurrentState().manualMethod();
           }
@@ -82,54 +92,74 @@ module("Stateful creation methods", {
 });
 
 test( "Test state properties", function() {
-    equal (obj.getCurrentState(), null, "By default, the current state is null.");
-    obj.setCurrentState(obj.a);
-    equal (obj.getCurrentState(), obj.a, "Set current state affects getCurrentState()");
-    obj.setCurrentState(null);
-    equal (obj.getCurrentState(), null, "State can be set to null.");
+    equal (stateful.getCurrentState(), null, "By default, the current state is null.");
+    stateful.setCurrentState(stateful.a);
+    equal (stateful.getCurrentState(), stateful.a, "Set current state affects getCurrentState()");
+    stateful.setCurrentState(null);
+    equal (stateful.getCurrentState(), null, "State can be set to null.");
 });
 
-test( "Passing in an object called methods to the extend function and calling init()", function () {
-    ok (obj.methodsVarFunction_string && _.isFunction(obj.methodsVarFunction_string), "Functions can be defined by mixing in an array of strings.");
-    ok (obj.methodsVarFunction_function && _.isFunction(obj.methodsVarFunction_function), "Functions can be defined by mixing in an array of functions.");
-    ok (obj.methodsVarFunction_object && _.isFunction(obj.methodsVarFunction_object), "Functions can be defined by mixing in an array of objects with name and default properties."); 
+test( "Passing in methods via options object", function () {
+    ok (stateful.methodsVarFunction_string && _.isFunction(stateful.methodsVarFunction_string), "Functions can be defined by mixing in an array of strings.");
+    ok (stateful.methodsVarFunction_function && _.isFunction(stateful.methodsVarFunction_function), "Functions can be defined by mixing in an array of functions.");
+    ok (stateful.methodsVarFunction_object && _.isFunction(stateful.methodsVarFunction_object), "Functions can be defined by mixing in an array of objects with name and default properties."); 
 });
 
 test( "Test addStateMethod", function () {
-    obj.addStateMethod("sayHello");
-    ok (_.isFunction(obj.sayHello), "sayHello() was defined by addStateMethod('sayHello')");
+    stateful.addStateMethod("sayHello");
+    ok (_.isFunction(stateful.sayHello), "sayHello() was defined by addStateMethod('sayHello')");
 
-    obj.addStateMethod("test", function(foo) {
+    stateful.addStateMethod("test", function(foo) {
         console.log("Default function", foo);
     });
 
-    obj.addStateMethod("calculate");
+    stateful.addStateMethod("calculate");
 
-    obj.test("Foo");
-    obj.sayHello();
+    stateful.test("Foo");
+    stateful.sayHello();
 
-    obj.setCurrentState(obj.a);
-    obj.test("Foo");
-    obj.sayHello("world");
+    stateful.setCurrentState(stateful.a);
+    stateful.test("Foo");
+    stateful.sayHello("world");
+    
+    equal(stateful.calculate(1,2,3), 6, "Functions from states return results.");
 
-    equal(obj.calculate(1,2,3), 6, "Functions from states return results.");
+    stateful.setCurrentState(stateful.b);
+    stateful.test("Foo");
+    stateful.sayHello("world");
 
-    obj.setCurrentState(obj.b);
-    obj.test("Foo");
-    obj.sayHello("world");
+    stateful.setCurrentState(null);
+    stateful.test("Foo");
+    stateful.sayHello("world");
 
-    obj.setCurrentState(null);
-    obj.test("Foo");
-    obj.sayHello("world");
-
-    obj.setCurrentState(obj.c);
-    obj.test("Foo");
-    obj.sayHello("world");
-    obj.manualMethod();
+    stateful.setCurrentState(stateful.c);
+    stateful.test("Foo");
+    stateful.sayHello("world");
+    stateful.manualMethod();
 }); 
-test( "History", function () {
-   obj.setCurrentState(obj.a);
-   var previousState = obj.getCurrentState(); 
-   obj.setCurrentState(obj.b);
-   equal (obj.previousState, previousState, "Last state tracks the previous state of the stateful object.");
+
+test( "Enter and exit functions", function () {
+    ok (!stateful.calledEnter && !stateful.calledExit);
+    stateful.setCurrentState(stateful.enterExitTestState);
+    ok (stateful.calledEnter, "When a state becomes active, enter() is called on the state.");
+    stateful.setCurrentState(stateful.a);
+    ok (stateful.calledExit, "When a state stops being active, exit() is called on the state.");
+    
+    stateful.setCurrentState(stateful.enterExitTestState);
+    stateful.calledEnter = false;
+    stateful.setCurrentState(stateful.enterExitTestState);
+    equal (stateful.calledEnter, false, "Setting currentState to the same thing twice doesn't do anything.")
+});
+
+test( "History Class", function () {
+   stateful.setCurrentState(stateful.a);
+   var previousState = stateful.getCurrentState(); 
+   stateful.setCurrentState(stateful.b);
+   equal (stateful, stateful.history.getStateful(), "History has a reference to the stateful object.");
+   equal (stateful.history.previousState, previousState, "Last state tracks the previous state of the stateful object.");
+   var previousLength = stateful.history.states.length;
+   stateful.setCurrentState(stateful.b);
+   equal (stateful.history.states.length, previousLength, "Setting the current state to the same state doesn't change the history.");
+   stateful.history.clear();
+   equal (stateful.history.states.length, 0, "Clear() clears the history.")
 });
