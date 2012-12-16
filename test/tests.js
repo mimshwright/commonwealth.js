@@ -29,15 +29,6 @@ module("Stateful", {
                         // }
                      ],
             states : {                
-                c : {
-                     enter: function () {
-                         console.log("Entering State C");
-                     },
-
-                     manualMethod: function () {
-                         console.log("Manual C");
-                     }
-                }, 
                 enterExitTestState : {
                     enter: function () {
                         stateful.calledEnter = true;
@@ -99,10 +90,12 @@ test( "Test state properties", function() {
     equal (stateful.getCurrentState(), null, "State can be set to null.");
 });
 
-test( "Passing in methods via options object", function () {
+test( "Passing in states and methods via options object", function () {
     ok (stateful.methodsVarFunction_string && _.isFunction(stateful.methodsVarFunction_string), "Functions can be defined by mixing in an array of strings.");
     ok (stateful.methodsVarFunction_function && _.isFunction(stateful.methodsVarFunction_function), "Functions can be defined by mixing in an array of functions.");
     ok (stateful.methodsVarFunction_object && _.isFunction(stateful.methodsVarFunction_object), "Functions can be defined by mixing in an array of objects with name and default properties."); 
+    
+    ok (stateful.enterExitTestState, "Providing an array of states called 'states' creates the state.");
 });
 
 test( "Test addStateMethod", function () {
@@ -131,11 +124,6 @@ test( "Test addStateMethod", function () {
     stateful.setCurrentState(null);
     stateful.test("Foo");
     stateful.sayHello("world");
-
-    stateful.setCurrentState(stateful.c);
-    stateful.test("Foo");
-    stateful.sayHello("world");
-    stateful.manualMethod();
 }); 
 
 test( "Enter and exit functions", function () {
