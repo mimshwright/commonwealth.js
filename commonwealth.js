@@ -2,12 +2,9 @@
 var commonwealth = commonwealth || {};
 
 commonwealth.Stateful = function Stateful (options) {
-    var currentState = null,
-    that = this;
+    var currentState = null;
     
     this.history = new commonwealth.History(this);
-    
-    _(this).extend(options.states);
     
     /**
     * Returns the current state.
@@ -46,7 +43,10 @@ commonwealth.Stateful.prototype.init = function init (options) {
   var methods = options.methods,
       elem, 
       method;
-
+  
+  // Add the states from the options object to the stateful.
+  _(this).extend(options.states);
+  
   if (methods && _.isArray(methods))  {
       for (elem in methods) {
           method = methods[elem];
