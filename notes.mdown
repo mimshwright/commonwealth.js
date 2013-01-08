@@ -1,0 +1,122 @@
+#State
+Constructing and storing the states is always a PITO. Can it be done with json where the children automatically inherit and are named based on the object id?
+
+var states = {
+	on:{
+		"methods": {
+			play: "playing", 
+			power: "off"
+		},
+		"states": {
+			idle : {},
+			playing: {
+				"methods": {
+					pause: "paused"
+				}
+			},
+			paused: {
+				methods: {
+					play: "playing"
+				}
+			},
+			default: "idle",
+		}
+	},
+	off: {
+		"methods": {
+			power: "on"
+		}
+	}
+};
+
+isActive - Determined by checking whether stateful or parent is pointing at it? Can a single instance be used in multiple places?
+internalCurrentState
+currentState - if internalCurrentState is defined recursively check until none is found.
+parentState?
+getStateChain = function () {
+	var chain = [];
+	if (parent) {
+		chain = chain.concat(this.parent.getStateChain());		
+	}
+	return chain;
+}
+defaultState - The state to set as current state by default. Can be null (self).
+resetOnEnter - if true, sets the current state to the default state when entering the state.
+reset - sets the current state to default state.
+
+
+public function onEnter():void {
+	_active = true;
+	construct();
+	if (resetOnEnter) {
+		internalCurrentState = defaultState;
+	}
+	if (_internalCurrentState && !_internalCurrentState.active) {
+		_internalCurrentState.onEnter();
+	}
+}
+
+public function onExit():void {
+	if (_active) {
+		_active = false;
+		if (_internalCurrentState) { 
+			_internalCurrentState.onExit();
+		}	
+		destruct();
+	}
+}
+
+// TODO: rename something better
+protected function construct():void {
+	// code to enter the state goes here.
+}
+
+// TODO: rename something better
+protected function destruct():void {
+	// code to exit state goes here.
+}
+
+
+public function dispatchSignal(signal:String):void {
+	currentState.processSignal(signal);
+}
+
+public function processSignal (signal:String):void {
+	var signalHandled:Boolean = handleSignal(signal);
+	if (!signalHandled && parentState) {
+		parentState.processSignal(signal);
+	}
+}
+
+protected function handleSignal (signal:String):Boolean {
+	var signalHandled:Boolean = false;
+	// include logic for handling signals
+	var state:IState = getTransitionStateForSignal(signal);
+	if (state) {
+		signalHandled = true;
+		internalCurrentState = state;
+	} else {
+		var func:Function = getHandlerForSignal(signal); 
+		if (func != null) {
+			signalHandled = true;
+			func.call();
+		}
+	}
+	return signalHandled;
+}
+
+public function getTransitionStateForSignal (signal:String):IState {
+	return _transitionMap[signal] as statechart.IState; 
+}
+
+public function registerTransition (signal:String, state:IState):void {
+	_transitionMap[signal] = state;
+}
+
+public function getHandlerForSignal (signal:String):Function  {
+	return _handlerMap[signal] as Function;
+}
+
+public function registerSignalHandler(signal:String, func:Function):void {
+	_handlerMap[signal] = func;
+}
