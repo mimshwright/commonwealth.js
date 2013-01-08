@@ -124,7 +124,7 @@ test( "Test addStateMethod", function () {
     stateful.setCurrentState(null);
     stateful.test("Foo");
     stateful.sayHello("world");
-}); 
+});
 
 test( "Enter and exit functions", function () {
     ok (!stateful.calledEnter && !stateful.calledExit);
@@ -136,12 +136,12 @@ test( "Enter and exit functions", function () {
     stateful.setCurrentState(stateful.enterExitTestState);
     stateful.calledEnter = false;
     stateful.setCurrentState(stateful.enterExitTestState);
-    equal (stateful.calledEnter, false, "Setting currentState to the same thing twice doesn't do anything.")
+    equal (stateful.calledEnter, false, "Setting currentState to the same thing twice doesn't do anything.");
 });
 
 test( "History Class", function () {
    stateful.setCurrentState(stateful.a);
-   var previousState = stateful.getCurrentState(); 
+   var previousState = stateful.getCurrentState();
    stateful.setCurrentState(stateful.b);
    equal (stateful, stateful.history.getStateful(), "History has a reference to the stateful object.");
    equal (stateful.history.previousState, previousState, "Last state tracks the previous state of the stateful object.");
@@ -149,5 +149,7 @@ test( "History Class", function () {
    stateful.setCurrentState(stateful.b);
    equal (stateful.history.states.length, previousLength, "Setting the current state to the same state doesn't change the history.");
    stateful.history.clear();
-   equal (stateful.history.states.length, 0, "Clear() clears the history.")
+   equal (stateful.history.states.length, 0, "Clear() clears the history.");
+   var noHistory = new commonwealth.Stateful({useHistory:false});
+   ok(noHistory.history === undefined, "History can be disabled by adding useHistory:false to the options object.");
 });
