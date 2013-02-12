@@ -155,11 +155,17 @@ test( "History Class", function () {
    stateful.setCurrentState(stateful.a);
    var previousState = stateful.getCurrentState();
    stateful.setCurrentState(stateful.b);
+
    equal (stateful, stateful.history.getStateful(), "History has a reference to the stateful object.");
    equal (stateful.history.previousState, previousState, "Last state tracks the previous state of the stateful object.");
+
    var previousLength = stateful.history.states.length;
    stateful.setCurrentState(stateful.b);
    equal (stateful.history.states.length, previousLength, "Setting the current state to the same state doesn't change the history.");
+
+   stateful.history.rewind();
+   equal (stateful.getCurrentState(), previousState, "Calling rewind() goes to the previous state.");
+
    stateful.history.clear();
    equal (stateful.history.states.length, 0, "Clear() clears the history.");
    var noHistory = new commonwealth.Stateful({useHistory:false});

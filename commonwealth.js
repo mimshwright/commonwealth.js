@@ -1,10 +1,22 @@
 var commonwealth = commonwealth || {};
 
+/**
+ * An object with multiple states. Depending on the state of the
+ * object, the object can appear to have multiple behaviors or properties.
+ * When certain methods of a stateful object are called, control
+ * is passed to the object stored in currentState.
+ *
+ * @param options An object used to set up the initial configuration of the
+ *                Stateful object. An array called "methods" and an array called
+ *                "states" can be passed in and will be parsed and added
+ *                to the new object.
+ */
 commonwealth.Stateful = function Stateful (options) {
+    /** The currentState of the object. */
     var currentState = null;
 
     if (options && options.useHistory !== false ) {
-      this.history = new commonwealth.History(this);
+        this.history = new commonwealth.History(this);
     }
 
     /**
@@ -27,7 +39,7 @@ commonwealth.Stateful = function Stateful (options) {
                 oldState.exit();
             }
             if (this.history) {
-              this.history.addState(oldState);
+                this.history.addState(oldState);
             }
             currentState = newState;
 
@@ -35,7 +47,6 @@ commonwealth.Stateful = function Stateful (options) {
                 newState.enter();
             }
         }
-
     };
 
     // initialize the intance
@@ -43,33 +54,32 @@ commonwealth.Stateful = function Stateful (options) {
 };
 
 commonwealth.Stateful.prototype.init = function init (options) {
-  var methods = options.methods,
-      elem,
-      method;
+    var methods = options.methods,
+        elem,
+        method;
 
-  // Add the states from the options object to the stateful.
-  commonwealth.util.extend(this, options.states);
+    // Add the states from the options object to the stateful.
+    commonwealth.util.extend(this, options.states);
 
-  if (methods && commonwealth.util.isArray(methods))  {
-      for (elem in methods) {
-          method = methods[elem];
-          if (commonwealth.util.isString(method)) {
-              this.addStateMethod(method);
-          } else if (commonwealth.util.isFunction (method)) {
-              if (method.name && method.name !== "") {
-                  this.addStateMethod(method.name, method);
-              } else {
-                  // function was anonymous.
-                  // throw an error because they can't be
-                  // mapped to anything.
-                  throw {message: "Anonymous function cannot be added this way."};
-              }
-
-          } else {
-              defaultFunc = method.defaultFunc || null;
-              if (method.name && commonwealth.util.isString(method.name)) {
-                  this.addStateMethod(method.name, defaultFunc);
-              }
+    if (methods && commonwealth.util.isArray(methods))  {
+        for (elem in methods) {
+            method = methods[elem];
+            if (commonwealth.util.isString(method)) {
+                this.addStateMethod(method);
+            } else if (commonwealth.util.isFunction (method)) {
+                if (method.name && method.name !== "") {
+                    this.addStateMethod(method.name, method);
+                } else {
+                    // function was anonymous.
+                    // throw an error because they can't be
+                    // mapped to anything.
+                    throw {message: "Anonymous function cannot be added this way."};
+                }
+            } else {
+                defaultFunc = method.defaultFunc || null;
+                if (method.name && commonwealth.util.isString(method.name)) {
+                    this.addStateMethod(method.name, defaultFunc);
+                }
             }
             // else failed to add a method.
         }
@@ -118,23 +128,33 @@ commonwealth.History.prototype.addState = function addState (state) {
     this.states.push(state);
     this.previousState = state;
 };
-
-
-
-commonwealth.util = {
-  toString : Object.prototype.toString,
-  isString : function(obj) { return this.toString.call(obj) == '[object String]'; },
-  isFunction : function(obj) { return this.toString.call(obj) == '[object Function]'; },
-  isArray : function(obj) { return this.toString.call(obj) == '[object Array]'; },
-  extend : function(obj, sources) {
-    for (var arg in arguments) {
-      var source = arguments[arg];
-      if (source && source !== obj) {
-        for (var prop in source) {
-          obj[prop] = source[prop];
-        }
-      }
-    }
-    return obj;
+commonwealth.History.prototype.rewind = function() {
+  if (this.states.length > 1) {
+    var stateful = this.getStateful(),
+        state = this.states.pop();
+    stateful.setCurrentState(state);
   }
+};
+
+
+/**
+* Utility functions copied from Underscore.js
+*/
+commonwealth.util = {
+    toString : Object.prototype.toString,
+    isString : function(obj) { return this.toString.call(obj) == '[object String]'; },
+    isFunction : function(obj) { return this.toString.call(obj) == '[object Function]'; },
+    isArray : function(obj) { return this.toString.call(obj) == '[object Array]'; },
+    extend : function(obj, sources) {
+        var arg, source, prop;
+        for (arg in arguments) {
+            source = arguments[arg];
+            if (source && source !== obj) {
+                for (prop in source) {
+                    obj[prop] = source[prop];
+                }
+            }
+        }
+        return obj;
+    }
 };
