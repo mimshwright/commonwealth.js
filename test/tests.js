@@ -90,10 +90,19 @@ test( "Test addStateMethod()", function () {
     stateful.addStateMethod("sayHello");
     ok (commonwealth.util.isFunction(stateful.sayHello), "sayHello() was defined by addStateMethod('sayHello')");
 
+    stateful.addStateMethod(
+        function skipName() { return ("Default function");}
+    );
+    equal(stateful.skipName(), "Default function", "A named default function can be added as the first parameter instead of using methodName and defaultFunc parameters.");
+
     stateful.addStateMethod("test", function(foo) {
         return ("Default function");
     });
-    equal(stateful.test(), "Default function", "Default function gets called when there isn't one defined on the state.");
+    equal(stateful.test(), "Default function", "test() defined by addStateMethod('test', function() {...}); Default function gets called when there isn't one defined on the state.");
+
+    raises( function () {
+        stateful.addStateMethod(function () {});
+    }, "Passing an anonymous function as the first parameter raises an error since a method name must be provided.");
 
     stateful.addStateMethod("add");
     var a = {

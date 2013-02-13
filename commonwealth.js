@@ -3,6 +3,7 @@
  */
 var commonwealth = commonwealth || {};
 
+commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
 
 
 /**
@@ -96,7 +97,7 @@ commonwealth.Stateful.prototype.init = function init (options) {
                     // function was anonymous.
                     // throw an error because they can't be
                     // mapped to anything.
-                    throw {message: "Anonymous function cannot be added this way."};
+                    throw commonwealth.CLOSURE_ERROR;
                 }
             } else {
                 defaultFunc = method.defaultFunc || null;
@@ -109,7 +110,31 @@ commonwealth.Stateful.prototype.init = function init (options) {
     }
 };
 
-commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName, defaultFunc) {
+/**
+ * Register a method to be handled by the stateful object's current
+ * state (or by itself).
+ *
+ * @param methodName_or_defaultFunc The name of the function to
+                                    register. Can also be the
+                                    defaultFunc parameter.
+ * @param defaultFunc (optional) A default function that will be run
+ *                    by the stateful object itself if there is none
+ *                    defined in the current state.
+ */
+commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName_or_defaultFunc, defaultFunc) {
+    var methodName;
+    // determine if the method name is the first parameter or
+    // if it's the default function.
+    if (commonwealth.util.isFunction(methodName_or_defaultFunc)) {
+        defaultFunc = methodName_or_defaultFunc;
+        methodName = defaultFunc.name;
+        if (methodName === "") {
+            throw commonwealth.CLOSURE_ERROR;
+        }
+    } else {
+        methodName = methodName_or_defaultFunc;
+    }
+
     this[methodName] = function() {
         var state = this.getCurrentState(),
             result = null;
