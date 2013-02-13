@@ -1,4 +1,9 @@
+/**
+ * @namespace commonwealth
+ */
 var commonwealth = commonwealth || {};
+
+
 
 /**
  * An object with multiple states. Depending on the state of the
@@ -7,15 +12,20 @@ var commonwealth = commonwealth || {};
  * is passed to the object stored in currentState.
  *
  * @param options An object used to set up the initial configuration of the
- *                Stateful object. An array called "methods" and an array called
+ *                Stateful object. An array called "methods" and an object called
  *                "states" can be passed in and will be parsed and added
  *                to the new object.
  */
 commonwealth.Stateful = function Stateful (options) {
+    var _ = commonwealth.util;
+
     /** The currentState of the object. */
     var currentState = null;
 
-    if (options && options.useHistory !== false ) {
+    this.states = {};
+
+    // Create a history object
+    if (!options || options.useHistory !== false ) {
         this.history = new commonwealth.History(this);
     }
 
@@ -31,11 +41,18 @@ commonwealth.Stateful = function Stateful (options) {
     * methods to enter and exit the state.
     */
     this.setCurrentState = function setCurrentState (state) {
+        if (_.isString(state)) {
+            state = this.states[state];
+            if (!state) {
+                throw {message: "The state you're trying to set can't be found in the list of states for " + this + "."};
+            }
+        }
+
         var oldState = currentState,
             newState = state;
 
         if ( newState != oldState) {
-            if (oldState && commonwealth.util.isFunction(oldState["exit"])) {
+            if (oldState && _.isFunction(oldState["exit"])) {
                 oldState.exit();
             }
             if (this.history) {
@@ -43,7 +60,7 @@ commonwealth.Stateful = function Stateful (options) {
             }
             currentState = newState;
 
-            if (newState && commonwealth.util.isFunction(newState["enter"])) {
+            if (newState && _.isFunction(newState["enter"])) {
                 newState.enter();
             }
         }
@@ -54,14 +71,18 @@ commonwealth.Stateful = function Stateful (options) {
 };
 
 commonwealth.Stateful.prototype.init = function init (options) {
-    var methods = options.methods,
+    var methods,
         elem,
         method;
 
-    // Add the states from the options object to the stateful.
-    commonwealth.util.extend(this, options.states);
+    if (options) {
+        methods = options.methods;
 
-    if (methods && commonwealth.util.isArray(methods))  {
+        // Add the states from the options object to the stateful.
+        commonwealth.util.extend(this.states, options.states);
+    }
+
+    if (methods)  {
         for (elem in methods) {
             method = methods[elem];
             if (commonwealth.util.isString(method)) {
@@ -69,6 +90,8 @@ commonwealth.Stateful.prototype.init = function init (options) {
             } else if (commonwealth.util.isFunction (method)) {
                 if (method.name && method.name !== "") {
                     this.addStateMethod(method.name, method);
+                } else if (isNaN(parseInt(elem, 10))) {
+                    this.addStateMethod(elem, method);
                 } else {
                     // function was anonymous.
                     // throw an error because they can't be
@@ -96,12 +119,23 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
         } else if (defaultFunc) {
             result = defaultFunc.apply(this, arguments);
         } else {
-            console.log("No method found called " + methodName + " in this state and no default method defined.");
+            // console.log("No method found called " + methodName + " in this state and no default method defined.");
         }
 
         return result;
     };
 };
+
+/**
+* Register a State object with the stateful.
+* These states are added to the stateful object's `state` property (a hash).
+*/
+commonwealth.Stateful.prototype.addState = function addState (name, state) {
+    this.states[name] = state;
+};
+
+
+////////// HISTORY ////////////
 
 /**
  * Stateful history object.
@@ -142,9 +176,10 @@ commonwealth.History.prototype.rewind = function() {
 */
 commonwealth.util = {
     toString : Object.prototype.toString,
-    isString : function(obj) { return this.toString.call(obj) == '[object String]'; },
-    isFunction : function(obj) { return this.toString.call(obj) == '[object Function]'; },
-    isArray : function(obj) { return this.toString.call(obj) == '[object Array]'; },
+    isString : function(obj) { return this.toString.call(obj) === '[object String]'; },
+    isNumber : function(obj) { return this.toString.call(obj) === '[object Number]'; },
+    isFunction : function(obj) { return this.toString.call(obj) === '[object Function]'; },
+    isArray : function(obj) { return this.toString.call(obj) === '[object Array]'; },
     extend : function(obj, sources) {
         var arg, source, prop;
         for (arg in arguments) {
