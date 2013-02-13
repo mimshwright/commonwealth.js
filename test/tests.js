@@ -180,7 +180,9 @@ test( "Enter and exit functions", function () {
     equal (stateful.calledEnter, false, "Setting currentState to the same thing twice doesn't do anything.");
 });
 
-test( "History Class", function () {
+module("History");
+
+test( "History functions", function () {
     var stateful = new commonwealth.Stateful(),
         previousState,
         a = {},
