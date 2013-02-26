@@ -56,8 +56,15 @@ commonwealth.Stateful = function Stateful (options) {
             if (oldState && _.isFunction(oldState["exit"])) {
                 oldState.exit();
             }
+
+            // Fixed an error where oldState (with value null) was being
+            // pushed to the history.states array
             if (this.history) {
-                this.history.addState(oldState);
+                if(oldState === null) {
+                    this.history.addState(state);
+                } else {
+                    this.history.addState(oldState);
+                }
             }
             currentState = newState;
 
