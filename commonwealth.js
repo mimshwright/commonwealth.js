@@ -182,12 +182,14 @@ commonwealth.History = function History (stateful) {
 commonwealth.History.prototype.clear = function clear () {
     this.states = [];
 };
-
+commonwealth.History.prototype.getLength = function getLength () {
+    return this.states.length;
+};
 commonwealth.History.prototype.addState = function addState (state) {
     this.states.push(state);
     this.previousState = state;
 };
-commonwealth.History.prototype.rewind = function() {
+commonwealth.History.prototype.rewind = function rewind () {
   if (this.states.length > 1) {
     var stateful = this.getStateful(),
         state = this.states.pop();

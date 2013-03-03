@@ -184,26 +184,33 @@ module("History");
 
 test( "History functions", function () {
     var stateful = new commonwealth.Stateful(),
+        history = stateful.history,
         previousState,
         a = {},
         b = {};
 
-    equal (stateful, stateful.history.getStateful(), "History has a reference to the stateful object.");
+    equal (stateful, history.getStateful(), "History has a reference to the stateful object.");
+
+    equal (0, history.states.length, "The history should be empty before a state is set on the stateful object.");
 
     stateful.setCurrentState(a);
+    equal (null, history.previousState, "The history should be record it when a state is set on the stateful object. The first state in the history should be null if that was the first state of the stateful object.");
+
     previousState = stateful.getCurrentState();
     stateful.setCurrentState(b);
-    equal (stateful.history.previousState, previousState, "Last state tracks the previous state of the stateful object.");
+    equal (history.previousState, previousState, "Last state tracks the previous state of the stateful object.");
 
-    var previousLength = stateful.history.states.length;
+    var previousLength = history.states.length;
     stateful.setCurrentState(stateful.getCurrentState());
-    equal (stateful.history.states.length, previousLength, "Setting the current state to the same state doesn't change the history.");
+    equal (history.states.length, previousLength, "Setting the current state to the same state doesn't change the history.");
 
-    stateful.history.rewind();
+    equal(history.getLength(), history.states.length, "getLength() is a shortcut for getting the length of the array in the history object.");
+
+    history.rewind();
     equal (stateful.getCurrentState(), previousState, "Calling rewind() goes to the previous state.");
 
-    stateful.history.clear();
-    equal (stateful.history.states.length, 0, "Calling clear() clears the history.");
+    history.clear();
+    equal (history.states.length, 0, "Calling clear() clears the history.");
 
     var noHistory = new commonwealth.Stateful({useHistory:false});
     equal(noHistory.history, undefined, "History can be disabled by adding useHistory:false to the options object.");
