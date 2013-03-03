@@ -206,8 +206,11 @@ test( "History functions", function () {
 
     equal(history.getLength(), history.states.length, "getLength() is a shortcut for getting the length of the array in the history object.");
 
+    var preRewindLength = history.getLength();
     history.rewind();
+    var postRewindLength = history.getLength();
     equal (stateful.getCurrentState(), previousState, "Calling rewind() goes to the previous state.");
+    equal (1, preRewindLength - postRewindLength);
 
     history.clear();
     equal (history.states.length, 0, "Calling clear() clears the history.");

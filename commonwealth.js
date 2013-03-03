@@ -179,21 +179,39 @@ commonwealth.History = function History (stateful) {
 
     this.clear();
 };
+
+/**
+* Erases the history. Doesn't change the current state.
+*/
 commonwealth.History.prototype.clear = function clear () {
     this.states = [];
 };
+/**
+* Shortcut function to get the number of states stored in history.
+*/
 commonwealth.History.prototype.getLength = function getLength () {
     return this.states.length;
 };
+/**
+* Adds a state to the history array.
+* @param state The state to add.
+*/
 commonwealth.History.prototype.addState = function addState (state) {
     this.states.push(state);
     this.previousState = state;
 };
+/**
+* Steps back by one state. Changes the current state of the stateful
+* object.
+*/
 commonwealth.History.prototype.rewind = function rewind () {
   if (this.states.length > 1) {
     var stateful = this.getStateful(),
         state = this.states.pop();
     stateful.setCurrentState(state);
+    // remove the state which was added back on when
+    // setCurrentState() was called.
+    this.states.pop();
   }
 };
 
