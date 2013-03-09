@@ -3,6 +3,7 @@
  */
 var commonwealth = commonwealth || {};
 
+/** An error thrown when a closure is used where a named function is expected. */
 commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
 
 
@@ -74,13 +75,12 @@ commonwealth.Stateful = function Stateful (options) {
 commonwealth.Stateful.prototype.init = function init (options) {
     var methods,
         elem,
-        method;
+        method,
+        states;
 
     if (options) {
         methods = options.methods;
-
-        // Add the states from the options object to the stateful.
-        commonwealth.util.extend(this.states, options.states);
+        states = options.states;
     }
 
     if (methods)  {
@@ -106,6 +106,12 @@ commonwealth.Stateful.prototype.init = function init (options) {
                 }
             }
             // else failed to add a method.
+        }
+    }
+
+    if (states) {
+        for (var stateName in states) {
+            this.addState(stateName, states[stateName]);
         }
     }
 };
@@ -157,6 +163,11 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
 */
 commonwealth.Stateful.prototype.addState = function addState (name, state) {
     this.states[name] = state;
+    state.prototype = this;
+};
+
+commonwealth.Stateful.prototype.toString = function toString () {
+    return "[object commonwealth.Stateful]";
 };
 
 
@@ -213,6 +224,9 @@ commonwealth.History.prototype.rewind = function rewind () {
     // setCurrentState() was called.
     this.states.pop();
   }
+};
+commonwealth.History.prototype.toString = function toString () {
+    return "[object commonwealth.History]";
 };
 
 
