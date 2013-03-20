@@ -37,7 +37,7 @@ test ("currentState() method", function () {
 	equal (testState, stateful.currentState(), "currentState(state) sets the current state while currentState() (no parameter) gets it.");
 	equal (testState, stateful.currentState("test"), "You can use the name of a state instead of the state object to set the state");
 	throws (function () { stateful.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
-	equal (stateful.setCurrentState("test"), stateful.getCurrentState(), "currentState() is an alias to setCurrentState(state) and getCurrentState()");
+	equal (stateful.setCurrentState("test"), stateful.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
 });
 
 test ("getStateByName() method", function () {
@@ -48,7 +48,7 @@ test ("getStateByName() method", function () {
 
 	equal (testState, stateful.getStateByName("test"), "getStateByName() returns the state object if it exists.");
 	equal (null, stateful.getStateByName("bogus"), "It returns the null if it doesn't exist.");
-})
+});
 
 test ("Conversion methods", function () {
 	var stateful = new c.Stateful();
@@ -57,7 +57,7 @@ test ("Conversion methods", function () {
 
 module ("Nested States");
 
-test ("currentState(), parentState() and rootState() in nested Stateful objects", function () {
+test ("currentState(), finalCurrentState(), parentState() and rootState() in nested Stateful objects", function () {
 	var root = new c.Stateful("root");
 	var child = new c.Stateful("child");
 	var grandchild = new c.Stateful("grandchild");
@@ -73,5 +73,6 @@ test ("currentState(), parentState() and rootState() in nested Stateful objects"
 
 	equal ( grandchild.parentState(), child, "parentState() points to the state's parent.");
 	equal ( grandchild.rootState(), root, "rootState() points to the root of the hierarchy.");
-	equal ( root.parentState(), root, "parentState() and rootState() are equal to the stateful object if the state has no parents.");
+	equal ( root.parentState(), null, "parentState() is equal to null if the state has no parents.");
+	equal ( root.rootState(), root, "rootState() is equal to the stateful if the stateful has no parents.");
 });

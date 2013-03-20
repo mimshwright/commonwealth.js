@@ -7,7 +7,7 @@ commonwealth.Stateful = function (name) {
     var _ = commonwealth.util;
 
     var currentState = null;
-    this._parentState = this;
+    this._parentState = null;
     this.states = {};
     this.name = name;
 
@@ -37,7 +37,7 @@ commonwealth.Stateful = function (name) {
             //     oldState.exit();
             // }
             if (oldState) {
-                oldState._parentState = oldState;
+                oldState._parentState = null;
             }
 
             currentState = newState;
@@ -81,7 +81,7 @@ commonwealth.Stateful.prototype.parentState = function parentState () {
 };
 commonwealth.Stateful.prototype.rootState = function rootState () {
     var parentState = this.parentState();
-    if (parentState === this) {
+    if (parentState === null) {
         return this;
     } else {
         return parentState.parentState();
