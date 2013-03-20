@@ -3,21 +3,15 @@
  */
 var commonwealth = commonwealth || {};
 
-commonwealth.Stateful = function () {
-	var _ = commonwealth.util;
+commonwealth.Stateful = function (name) {
+    var _ = commonwealth.util;
 
-	var currentState = null;
-	this.states = {};
+    var currentState = null;
+    this._parentState = this;
+    this.states = {};
+    this.name = name;
 
-	this.currentState = function currentState (state) {
-		if (state) {
-			return this.setCurrentState(state);
-		} else {
-			return this.getCurrentState();
-		}
-	};
-
-	/**
+    /**
     * Returns the current state.
     */
     this.getCurrentState = function getCurrentState () {
@@ -40,30 +34,54 @@ commonwealth.Stateful = function () {
             newState = state;
 
         if ( newState != oldState) {
-            if (oldState && _.isFunction(oldState["exit"])) {
-                oldState.exit();
+            // if (oldState && _.hasMethod(oldState, "exit") ) {
+            //     oldState.exit();
+            // }
+            if (oldState) {
+                oldState._parentState = oldState;
             }
-            if (this.history) {
-                this.history.addState(oldState);
-            }
+
             currentState = newState;
 
-            if (newState && _.isFunction(newState["enter"])) {
-                newState.enter();
+            if (newState) {
+                newState._parentState = this;
             }
+
+            // if (newState && _.hasMethod(newState, "enter") ) {
+            //     newState.enter();
+            // }
         }
         return currentState;
     };
 };
 
+commonwealth.Stateful.prototype.currentState = function currentState (state) {
+    if (state) {
+        return this.setCurrentState(state);
+    } else {
+        return this.getCurrentState();
+    }
+};
+
 commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) {
-	return this.states[name];
+    return this.states[name];
 };
 
 commonwealth.Stateful.prototype.addSubstate = function addSubstate (state) {
-	var name = state.name;
-	this.states[name] = state;
-	return state;
+    var name = state.name;
+    this.states[name] = state;
+    return state;
+};
+commonwealth.Stateful.prototype.parentState = function parentState () {
+    return this._parentState;
+};
+commonwealth.Stateful.prototype.rootState = function rootState () {
+    var parentState = this.parentState();
+    if (parentState == this) {
+        return this;
+    } else {
+        return this.parentState().parentState();
+    }
 };
 commonwealth.Stateful.prototype.toString = function toString () {
     return "[object commonwealth.Stateful]";
@@ -79,6 +97,7 @@ commonwealth.util = {
     isNumber : function(obj) { return this.toString.call(obj) === '[object Number]'; },
     isFunction : function(obj) { return this.toString.call(obj) === '[object Function]'; },
     isArray : function(obj) { return this.toString.call(obj) === '[object Array]'; },
+    hasMethod: function (obj, method) { return this.isFunction(obj[method]); },
     extend : function(obj, sources) {
         var arg, source, prop;
         for (arg in arguments) {
