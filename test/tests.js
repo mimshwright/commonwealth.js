@@ -35,10 +35,9 @@ test ("currentState() method", function () {
 	equal (null, stateful.currentState(), "By default, currentState() returns null.");
 	stateful.currentState(testState);
 	equal (testState, stateful.currentState(), "currentState(state) sets the current state while currentState() (no parameter) gets it.");
-	stateful.currentState(null);
 	equal (testState, stateful.currentState("test"), "You can use the name of a state instead of the state object to set the state");
 	throws (function () { stateful.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
-	equal (stateful.setCurrentState(null), stateful.getCurrentState(), "currentState() is an alias to setCurrentState(state) and getCurrentState()");
+	equal (stateful.setCurrentState("test"), stateful.getCurrentState(), "currentState() is an alias to setCurrentState(state) and getCurrentState()");
 });
 
 test ("getStateByName() method", function () {
@@ -70,6 +69,7 @@ test ("currentState(), parentState() and rootState() in nested Stateful objects"
 	child.currentState("grandchild");
 
 	ok (root.currentState() == child && child.currentState() == grandchild, "Stateful objects can be nested.");
+	equal (root.finalCurrentState(), grandchild, "finalCurrentState() gets the currentState of the most distant ancestor.");
 
 	equal ( grandchild.parentState(), child, "parentState() points to the state's parent.");
 	equal ( grandchild.rootState(), root, "rootState() points to the root of the hierarchy.");

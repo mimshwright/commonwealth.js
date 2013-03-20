@@ -22,16 +22,15 @@ commonwealth.Stateful = function (name) {
     * Sets the current state and calls the appropriate
     * methods to enter and exit the state.
     */
-    this.setCurrentState = function setCurrentState (state) {
-        if (_.isString(state)) {
-            state = this.getStateByName(state);
-            if (!state) {
+    this.setCurrentState = function setCurrentState (newState) {
+        var oldState = currentState;
+
+        if (_.isString(newState)) {
+            newState = this.getStateByName(newState);
+            if (!newState) {
                 throw {message: "The state you're trying to set can't be found in the list of states for " + this + "."};
             }
         }
-
-        var oldState = currentState,
-            newState = state;
 
         if ( newState != oldState) {
             // if (oldState && _.hasMethod(oldState, "exit") ) {
@@ -63,6 +62,11 @@ commonwealth.Stateful.prototype.currentState = function currentState (state) {
     }
 };
 
+commonwealth.Stateful.prototype.finalCurrentState = function finalCurrentState() {
+    if (this.currentState() === null) { return this; }
+    return this.currentState().finalCurrentState();
+};
+
 commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) {
     return this.states[name];
 };
@@ -77,10 +81,10 @@ commonwealth.Stateful.prototype.parentState = function parentState () {
 };
 commonwealth.Stateful.prototype.rootState = function rootState () {
     var parentState = this.parentState();
-    if (parentState == this) {
+    if (parentState === this) {
         return this;
     } else {
-        return this.parentState().parentState();
+        return parentState.parentState();
     }
 };
 commonwealth.Stateful.prototype.toString = function toString () {
