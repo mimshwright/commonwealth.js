@@ -36,7 +36,7 @@ test ("currentState() method", function () {
 	stateful.currentState(testState);
 	equal (testState, stateful.currentState(), "currentState(state) sets the current state while currentState() (no parameter) gets it.");
 	equal (testState, stateful.currentState("test"), "You can use the name of a state instead of the state object to set the state");
-	throws (function () { stateful.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
+	raises (function () { stateful.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
 	equal (stateful.setCurrentState("test"), stateful.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
 });
 
