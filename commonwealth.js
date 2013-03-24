@@ -4,7 +4,7 @@
 var commonwealth = commonwealth || {};
 
 commonwealth.Stateful = function (name) {
-    var _ = commonwealth.util;
+    var _ = commonwealth.utils;
 
     var currentState = null;
     this._parentState = null;
@@ -33,10 +33,10 @@ commonwealth.Stateful = function (name) {
         }
 
         if ( newState != oldState) {
-            // if (oldState && _.hasMethod(oldState, "exit") ) {
-            //     oldState.exit();
-            // }
             if (oldState) {
+                if (_.hasMethod(oldState, "exit")) {
+                    oldState.exit();
+                }
                 oldState._parentState = null;
             }
 
@@ -44,11 +44,10 @@ commonwealth.Stateful = function (name) {
 
             if (newState) {
                 newState._parentState = this;
+                if (_.hasMethod(newState, "enter")) {
+                    newState.enter();
+                }
             }
-
-            // if (newState && _.hasMethod(newState, "enter") ) {
-            //     newState.enter();
-            // }
         }
         return currentState;
     };
@@ -63,8 +62,11 @@ commonwealth.Stateful.prototype.currentState = function currentState (state) {
 };
 
 commonwealth.Stateful.prototype.finalCurrentState = function finalCurrentState() {
-    if (this.currentState() === null) { return this; }
-    return this.currentState().finalCurrentState();
+    var currentState = this.getCurrentState();
+    if (currentState === null) {
+        return this;
+    }
+    return currentState.finalCurrentState();
 };
 
 commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) {
@@ -83,9 +85,8 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
     var parentState = this.parentState();
     if (parentState === null) {
         return this;
-    } else {
-        return parentState.parentState();
     }
+    return parentState.rootState();
 };
 
 /**
@@ -95,38 +96,59 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
  * @param methodName The name of the function to register.
  */
 commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName) {
-    this[methodName] = function() {
-        var state = this.getCurrentState(),
-            result = null;
+    // Check to see if the state already has the method.
+    if (commonwealth.utils.hasMethod(this, methodName) === false) {
+        this[methodName] = function() {
+            var state = this.getCurrentState(),
+                result = null;
 
-        if (state && commonwealth.util.isFunction(state[methodName])) {
-            result = state[methodName].apply(state, arguments);
-        }
-        // else if (defaultFunc) {
-        //    result = defaultFunc.apply(this, arguments);
-        //} else {
-            // console.log("No method found called " + methodName + " in this state and no default method defined.");
-        //}
+            if (commonwealth.utils.hasMethod(state, methodName)) {
+                result = state[methodName].apply(state, arguments);
+            }
+            // else if (defaultFunc) {
+            //    result = defaultFunc.apply(this, arguments);
+            //} else {
+                // console.log("No method found called " + methodName + " in this state and no default method defined.");
+            //}
 
-        return result;
-    };
+            return result;
+        };
+    }
+
+    for (var i in this.states) {
+        var state = this.states[i];
+        state.addStateMethod(methodName);
+    }
 };
+
+//// CONVERSION METHODS
 
 commonwealth.Stateful.prototype.toString = function toString () {
     return "[object commonwealth.Stateful]";
+};
+
+commonwealth.Stateful.prototype.stateChainToArray = function stateChainToArray () {
+    var state = this.rootState(),
+        array = [];
+
+    while (state !== null) {
+        array.push(state);
+        state = state.getCurrentState();
+    }
+    return array;
 };
 
 
 /**
 * Utility functions copied from Underscore.js
 */
-commonwealth.util = {
+commonwealth.utils = {
     toString : Object.prototype.toString,
     isString : function(obj) { return this.toString.call(obj) === '[object String]'; },
     isNumber : function(obj) { return this.toString.call(obj) === '[object Number]'; },
     isFunction : function(obj) { return this.toString.call(obj) === '[object Function]'; },
     isArray : function(obj) { return this.toString.call(obj) === '[object Array]'; },
-    hasMethod: function (obj, method) { return this.isFunction(obj[method]); },
+    hasMethod: function (obj, method) { return obj !== null && this.isFunction(obj[method]); },
     extend : function(obj, sources) {
         var arg, source, prop;
         for (arg in arguments) {

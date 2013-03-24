@@ -1,16 +1,14 @@
 var c = commonwealth;
 
 module("Dependencies");
-// test ("Requires Underscore.js", function () {
-//     ok (_, "Underscore is loaded.");
-// });
 test ("Commonwealth", function () {
     ok (commonwealth, "Commonwealth is loaded.");
 });
+test ("Commonwealth utils", function () {
+    ok (commonwealth.utils, "Commonwealth utils is loaded.");
+});
 
-
-
-module("Stateful");
+module("Creating and setting States");
 
 test ("Stateful constructor", function () {
 	var stateful = new c.Stateful ("test");
@@ -50,6 +48,8 @@ test ("getStateByName() method", function () {
 	equal (null, stateful.getStateByName("bogus"), "It returns the null if it doesn't exist.");
 });
 
+module('State methods');
+
 test ("addStateMethod()", function () {
 	var mathStateful = new c.Stateful();
 	var identityState = new c.Stateful();
@@ -74,9 +74,33 @@ test ("addStateMethod()", function () {
 	equal(10, mathStateful.process(5), "The return value of the substate function is returned.");
 });
 
-test ("Conversion methods", function () {
-	var stateful = new c.Stateful();
-	ok(stateful.toString().indexOf("Stateful") >= 0, "toString() produces " + stateful.toString());
+test ("enter() and exit()", function () {
+	var stateful = new c.Stateful("root");
+	stateful.lastStateEntered = null;
+	stateful.lastStateExited = null;
+
+	var enterTestState = new c.Stateful("enter");
+	enterTestState.enter = function () {
+		this.rootState().lastStateEntered = this.name;
+	};
+
+	var exitTestState = new c.Stateful("exit");
+	exitTestState.exit = function () {
+		var r = this.rootState();
+		r.lastStateExited = this.name;
+	};
+
+	stateful.addSubstate(enterTestState);
+	stateful.addSubstate(exitTestState);
+
+	equal (stateful.lastStateEntered, null, "Before starting test, verify that lastStateEntered is null.");
+	equal (stateful.lastStateExited, null, "Before starting test, verify that lastStateExited is null.");
+
+	stateful.currentState("exit");
+	equal (stateful.lastStateEntered, null, "If the currentState doesn't implement a function called enter() or exit(), that function isn't called.");
+	stateful.currentState("enter");
+	equal (stateful.lastStateExited, exitTestState.name, "exit() is called automatically when the currentState is replaced by a new state.");
+	equal (stateful.lastStateEntered, enterTestState.name, "enter() is called automatically when a currentState is set.");
 });
 
 module ("Nested States");
@@ -99,4 +123,48 @@ test ("currentState(), finalCurrentState(), parentState() and rootState() in nes
 	equal ( grandchild.rootState(), root, "rootState() points to the root of the hierarchy.");
 	equal ( root.parentState(), null, "parentState() is equal to null if the state has no parents.");
 	equal ( root.rootState(), root, "rootState() is equal to the stateful if the stateful has no parents.");
+	equal ( child.rootState(), child.parentState(), "rootState() is equal to the parentState() if the child has only one parent.");
+});
+
+test ("Calling nested functions", function (){
+	var root = new c.Stateful("root");
+	var child = new c.Stateful("child");
+	var grandchild = new c.Stateful("grandchild");
+
+	root.addSubstate(child);
+	child.addSubstate(grandchild);
+
+	root.currentState("child");
+	child.currentState("grandchild");
+
+	root.addStateMethod("f");
+
+	grandchild.f = function () {
+		return this;
+	};
+
+	ok (commonwealth.utils.hasMethod(child, "f"), "State methods are automatically added to substates.");
+	equal(root.f(), grandchild, "Control is passed to substates when a method is called.");
+});
+
+module ("Conversion methods");
+test ("toString()", function () {
+	var stateful = new c.Stateful();
+	ok(stateful.toString().indexOf("Stateful") >= 0, "toString() produces " + stateful.toString());
+});
+test ("stateChainToString() and stateChainToArray()", function () {
+	var root = new c.Stateful("root");
+	var child = new c.Stateful("child");
+	var grandchild = new c.Stateful("grandchild");
+
+	root.addSubstate(child);
+	child.addSubstate(grandchild);
+
+	root.currentState("child");
+	child.currentState("grandchild");
+
+	var a = root.stateChainToArray();
+	ok(a[0] === root && a[1] === child && a[2] === grandchild, "stateChainToArray() produces an array of the current state chain from rootState to finalCurrentState.");
+	// equal(root.stateChainToString(), "*root* > child > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
+	// equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 });
