@@ -87,6 +87,31 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
         return parentState.parentState();
     }
 };
+
+/**
+ * Register a method to be handled by the stateful object's current
+ * state.
+ *
+ * @param methodName The name of the function to register.
+ */
+commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName) {
+    this[methodName] = function() {
+        var state = this.getCurrentState(),
+            result = null;
+
+        if (state && commonwealth.util.isFunction(state[methodName])) {
+            result = state[methodName].apply(state, arguments);
+        }
+        // else if (defaultFunc) {
+        //    result = defaultFunc.apply(this, arguments);
+        //} else {
+            // console.log("No method found called " + methodName + " in this state and no default method defined.");
+        //}
+
+        return result;
+    };
+};
+
 commonwealth.Stateful.prototype.toString = function toString () {
     return "[object commonwealth.Stateful]";
 };

@@ -50,6 +50,30 @@ test ("getStateByName() method", function () {
 	equal (null, stateful.getStateByName("bogus"), "It returns the null if it doesn't exist.");
 });
 
+test ("addStateMethod()", function () {
+	var mathStateful = new c.Stateful();
+	var identityState = new c.Stateful();
+	var doubleState = new c.Stateful();
+
+	identityState.process = function (x) {
+		return x;
+	};
+
+	doubleState.process = function (x) {
+		return x*2;
+	};
+
+	mathStateful.addSubstate(identityState);
+	mathStateful.addSubstate(doubleState);
+	mathStateful.addStateMethod ("process");
+
+	equal(mathStateful.process(5), null, "By default, the result of a state method is null if there is no defualt function.");
+	mathStateful.currentState(identityState);
+	equal(5, mathStateful.process(5), "If the currentState implements a method called on the stateful host, control is diverted to the state.");
+	mathStateful.currentState(doubleState);
+	equal(10, mathStateful.process(5), "The return value of the substate function is returned.");
+});
+
 test ("Conversion methods", function () {
 	var stateful = new c.Stateful();
 	ok(stateful.toString().indexOf("Stateful") >= 0, "toString() produces " + stateful.toString());
@@ -69,7 +93,7 @@ test ("currentState(), finalCurrentState(), parentState() and rootState() in nes
 	child.currentState("grandchild");
 
 	ok (root.currentState() == child && child.currentState() == grandchild, "Stateful objects can be nested.");
-	equal (root.finalCurrentState(), grandchild, "finalCurrentState() gets the currentState of the most distant ancestor.");
+	equal (root.finalCurrentState(), grandchild, "finalCurrentState() gets the the most distant ancestor in the state chain.");
 
 	equal ( grandchild.parentState(), child, "parentState() points to the state's parent.");
 	equal ( grandchild.rootState(), root, "rootState() points to the root of the hierarchy.");
