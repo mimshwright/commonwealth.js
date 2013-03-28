@@ -134,19 +134,26 @@ test ("Default methods", function () {
 });
 
 test("before and after functions", function () {
-	var parent = c.Stateful("parent");
+	var parent = new c.Stateful("parent");
 	var child = parent.addSubstate("child");
 	parent.currentState(child);
 
 	var result = "";
 
-	parent.addStateMethod("f");
-	parent.f.before = function () { result += "before|"; };
+	parent.addStateMethod("f", function () {
+		result += "default|";
+	});
+	parent.f.before = function () { result = "before|"; };
 	child.f = function () { result += "during|"; };
 	parent.f.after = function () { result += "after"; };
 
 	parent.f();
-	equals(result, "before|during|after", "When you call a function, the before() and after() functions are called before and after the main function if they exist.");
+	equal(result, "before|during|after", "When you call a function, the before() and after() functions are called before and after the main function if they exist.");
+
+	parent.setCurrentState(null);
+	parent.f();
+	equal(result, "before|default|after", "defaultFunction still works in conjunction with before() and after().");
+
 	// TODO: test this on nested states.
 });
 
@@ -228,14 +235,19 @@ test ("Calling nested functions", function (){
 	root.currentState("child");
 	child.currentState("grandchild");
 
-	root.addStateMethod("f");
+	root.addStateMethod("noSkip");
+	root.addStateMethod("skip");
 
-	grandchild.f = function () {
+	child.noSkip = function () {
 		return this;
 	};
 
-	ok (commonwealth.utils.hasMethod(child, "f"), "State methods are automatically added to substates.");
-	equal(root.f(), grandchild, "Control is passed to substates when a method is called.");
+	grandchild.skip = function () {
+		return this;
+	};
+
+	equal(root.noSkip(), child, "Control is passed to substates when a method is called.");
+	equal(root.skip(), grandchild, "More distant relatives will be checked for viable functions even if their parents haven't called addStateMethod() specifically. In other words, I can set up a function on the parent and the grandchild without doing anything to the child.");
 });
 
 module ("Conversion methods");
@@ -243,7 +255,7 @@ test ("toString()", function () {
 	var stateful = new c.Stateful();
 	ok(stateful.toString().indexOf("Stateful") >= 0, "toString() produces " + stateful.toString());
 });
-test ("stateChainToString() and stateChainToArray()", function () {
+test ("stateChainToArray()", function () {
 	var root = new c.Stateful("root");
 	var child = new c.Stateful("child");
 	var grandchild = new c.Stateful("grandchild");
@@ -257,6 +269,6 @@ test ("stateChainToString() and stateChainToArray()", function () {
 	var a = root.stateChainToArray();
 	ok(a[0] === root && a[1] === child && a[2] === grandchild, "stateChainToArray() produces an array of the current state chain from rootState to finalCurrentState.");
 
-	equal(root.stateChainToString(), "*root* > child > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
-	equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
+	// equal(root.stateChainToString(), "*root* > child > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
+	// equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 });

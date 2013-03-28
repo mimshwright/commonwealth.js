@@ -120,14 +120,15 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
  * @param defaultFunction [optional] A function to be called as the default if there is nothing defined in the substate.
  */
 commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName_or_defaultFunction, defaultFunction) {
-    var methodName;
+    var methodName, 
+        _ = commonwealth.utils;
 
     // determine if the method name is the first parameter or
     // if it's the default function.
-    if (commonwealth.utils.isString(methodName_or_defaultFunction)) {
+    if (_.isString(methodName_or_defaultFunction)) {
         methodName = methodName_or_defaultFunction;
         // defaultFunction pulls from second arg if available
-    } else if (commonwealth.utils.isFunction(methodName_or_defaultFunction)) {
+    } else if (_.isFunction(methodName_or_defaultFunction)) {
         defaultFunction = methodName_or_defaultFunction;
         if (defaultFunction.name === "") {
             throw commonwealth.CLOSURE_ERROR;
@@ -136,18 +137,20 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
     }
 
     // Check to see if the state already has the method.
-    if (commonwealth.utils.hasMethod(this, methodName) === false) {
+    if (_.hasMethod(this, methodName) === false) {
         this[methodName] = function() {
-            // check currentState for function, if not present, forward to it's current state until end is reached.
 
             var iterator = this.getCurrentState(),
                 result = null,
+                before = this[methodName].before,
                 defaultFunction = this[methodName].defaultFunction,
+                after = this[methodName].after,
                 firstStateWithMethodDefined = null,
                 state;
 
+            // check currentState for function, if not present, forward to it's currentState until null is reached.
             while (iterator && !firstStateWithMethodDefined) {
-                if (commonwealth.utils.hasMethod(iterator, methodName)) {
+                if (_.hasMethod(iterator, methodName)) {
                     firstStateWithMethodDefined = iterator;
                 } else {
                     iterator = iterator.getCurrentState();
@@ -155,6 +158,11 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
             }
 
             state = firstStateWithMethodDefined;
+
+            // Call the before function if defined.
+            if (_.isFunction(before)) {
+                before.apply(this, arguments);
+            }
 
             if (state) {
                 result = state[methodName].apply(state, arguments);
@@ -165,6 +173,11 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
             // else {
                 // console.log("No method found called " + methodName + " in this state and no default method defined.");
             //}
+
+            // Call the after function if defined.
+            if (_.isFunction(after)) {
+                after.apply(this, arguments);
+            }
 
             return result;
         };
