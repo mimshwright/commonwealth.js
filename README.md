@@ -8,6 +8,6 @@ An implementation of hierarchical and finite state machines in JavaScript
 - Unique features that take advantage of JS's particular architecture
 - Easy to understand and very straightforward to implement
 - Based on Practical use cases rather than pure theory
-- Super testy! Created by TDD. [Check out the test suite](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/test/index.html)
+- Super testy! Created by TDD with QUnit. [Check out the test suite](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/test/index.html)
 
-##Why Commonwealth
+More to come...
