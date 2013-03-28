@@ -18,10 +18,18 @@ test ("Stateful constructor", function () {
 
 test ("addSubstate() method", function () {
 	var stateful  = new c.Stateful();
-	var testState = stateful.addSubstate({
-		name: "test"
-	});
-	equal(stateful.states.test, testState, "addSubstate() adds a state object and returns a reference to it.");
+
+	// create a new state with the name existing.
+	var existingState = new c.Stateful("existing");
+	stateful.addSubstate(existingState);
+	equal(existingState, stateful.states.existing, "addSubstate() adds an existing state object and returns a reference to it.");
+
+	var newStateFromString = stateful.addSubstate("fromString");
+	equal(newStateFromString, stateful.states.fromString, "addSubstate(string) creates a state object, adds it, and returns a reference to it.");
+	var noName = stateful.addSubstate();
+
+	equal(noName, stateful.states.state0, "Using addSubstate() with no arguments produces a new state with an automatically generated name starting with 'state0'");
+	equal(stateful.addSubstate().name, "state1", "Each additional call automatically increments the state name.");
 });
 
 test ("currentState() method", function () {
@@ -36,6 +44,14 @@ test ("currentState() method", function () {
 	equal (testState, stateful.currentState("test"), "You can use the name of a state instead of the state object to set the state");
 	raises (function () { stateful.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
 	equal (stateful.setCurrentState("test"), stateful.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
+});
+
+test ("addCurrentState() method", function () {
+	var stateful  = new c.Stateful();
+	var testState = stateful.addCurrentState("test");
+
+	equal (testState.name, "test", "addCurrentState() creates a new state the same way as addSubstate().");
+	equal (stateful.getCurrentState(), testState, "It also sets the currentState to the new state you created.");
 });
 
 test ("getStateByName() method", function () {
@@ -65,13 +81,73 @@ test ("addStateMethod()", function () {
 
 	mathStateful.addSubstate(identityState);
 	mathStateful.addSubstate(doubleState);
-	mathStateful.addStateMethod ("process");
+	var process = mathStateful.addStateMethod ("process");
 
 	equal(mathStateful.process(5), null, "By default, the result of a state method is null if there is no defualt function.");
 	mathStateful.currentState(identityState);
 	equal(5, mathStateful.process(5), "If the currentState implements a method called on the stateful host, control is diverted to the state.");
 	mathStateful.currentState(doubleState);
 	equal(10, mathStateful.process(5), "The return value of the substate function is returned.");
+	equal(process, mathStateful.process, "Return a reference to the function, just for kicks.");
+});
+
+test ("Default methods", function () {
+	var s = new c.Stateful();
+	s.addStateMethod("getInfo");
+
+	var noInfoString = "No info found.";
+	var infoString = "Here's the info you asked for.";
+	var defaultString = "Nobody knows about this function.";
+	var impliedString = "Everyone should have heard about this function.";
+
+	var noInfo = s.addSubstate("noInfo");
+
+	var info = s.addSubstate("info");
+	info.getInfo = function () {
+		return infoString;
+	};
+
+	s.getInfo.defaultFunction = function () {
+		return noInfoString;
+	};
+
+	s.currentState(info);
+	equal (s.getInfo(), infoString, "When a method is supported by a substate, it is called on the substate.");
+	s.currentState(noInfo);
+	equal (s.getInfo(), noInfoString, "When a method is not supported by a substate, the defaultFunction() property of the funciton is called instead.");
+
+	s.addStateMethod("getInfoWithDefault", function () {
+		return defaultString;
+	});
+	equal (s.getInfoWithDefault(), defaultString, "A defaultFunction can be passed in as the second argument in the addStateMethod() call.");
+
+	s.addStateMethod(function impliedName () {
+		return impliedString;
+	});
+	equal (s.impliedName(), impliedString, "A default function can be passed as the only argument if it is named.");
+
+	s.currentState(info);
+	info.impliedName = info.getInfo;
+	equal (s.impliedName(), infoString, "Just checking that when you do this, the substate methods are still called instead.");
+
+	raises (function () { s.addStateMethod(function () {}); }, "Trying to add just an anonymous function causes an error since there is no name data anywhere to be found.");
+});
+
+test("before and after functions", function () {
+	var parent = c.Stateful("parent");
+	var child = parent.addSubstate("child");
+	parent.currentState(child);
+
+	var result = "";
+
+	parent.addStateMethod("f");
+	parent.f.before = function () { result += "before|"; };
+	child.f = function () { result += "during|"; };
+	parent.f.after = function () { result += "after"; };
+
+	parent.f();
+	equals(result, "before|during|after", "When you call a function, the before() and after() functions are called before and after the main function if they exist.");
+	// TODO: test this on nested states.
 });
 
 test ("enter() and exit()", function () {
@@ -102,6 +178,21 @@ test ("enter() and exit()", function () {
 	equal (stateful.lastStateExited, exitTestState.name, "exit() is called automatically when the currentState is replaced by a new state.");
 	equal (stateful.lastStateEntered, enterTestState.name, "enter() is called automatically when a currentState is set.");
 });
+
+// test ("supportsMethod()", function () {
+// 	var parent = new Stateful();
+// 	var child = parent.addSubstate("child");
+
+// 	parent.addStateMethod("both");
+// 	child.both = function () {};
+// 	ok(parent.supportsMethod("both") && child.supportsMethod("both"), "Testing that a state root and a substate can both support a method.");
+
+// 	parent.addStateMethod("parentOnly");
+// 	ok(parent.supportsMethod("parentOnly") && !child.supportsMethod("parentOnly"), "Testing a state root which added a method through addStateMethod().");
+
+// 	child.childOnly("childOnly");
+// 	ok(!parent.supportsMethod("childOnly") && child.supportsMethod("childOnly"), "Testing a state which added a method through function definition.");
+// });
 
 module ("Nested States");
 
@@ -165,6 +256,7 @@ test ("stateChainToString() and stateChainToArray()", function () {
 
 	var a = root.stateChainToArray();
 	ok(a[0] === root && a[1] === child && a[2] === grandchild, "stateChainToArray() produces an array of the current state chain from rootState to finalCurrentState.");
-	// equal(root.stateChainToString(), "*root* > child > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
-	// equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
+
+	equal(root.stateChainToString(), "*root* > child > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
+	equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 });

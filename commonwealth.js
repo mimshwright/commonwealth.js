@@ -9,6 +9,7 @@ commonwealth.Stateful = function (name) {
     var currentState = null;
     this._parentState = null;
     this.states = {};
+    this._stateID = 0;
     this.name = name;
 
     /**
@@ -74,8 +75,30 @@ commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) 
 };
 
 commonwealth.Stateful.prototype.addSubstate = function addSubstate (state) {
-    var name = state.name;
+    var name;
+
+    // If state is null or undefined, assign an auto-incremented name.
+    if (!state) {
+        state = "state" + this._stateID++;
+    }
+
+    // If state is a string, use it as the name of a new substate.
+    if (commonwealth.utils.isString(state)) {
+        name = state;
+        state = new commonwealth.Stateful(name);
+    }
+
+    // Otherwise, assume it's a state object.
+    else {
+        name = state.name;
+    }
+
     this.states[name] = state;
+    return state;
+};
+commonwealth.Stateful.prototype.addCurrentState = function addCurrentState (state) {
+    state = this.addSubstate(state);
+    this.setCurrentState(state);
     return state;
 };
 commonwealth.Stateful.prototype.parentState = function parentState () {
@@ -93,21 +116,53 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
  * Register a method to be handled by the stateful object's current
  * state.
  *
- * @param methodName The name of the function to register.
+ * @param methodName_or_defaultFunction The name of the function to register, or a defaultFunction with a name.
+ * @param defaultFunction [optional] A function to be called as the default if there is nothing defined in the substate.
  */
-commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName) {
+commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName_or_defaultFunction, defaultFunction) {
+    var methodName;
+
+    // determine if the method name is the first parameter or
+    // if it's the default function.
+    if (commonwealth.utils.isString(methodName_or_defaultFunction)) {
+        methodName = methodName_or_defaultFunction;
+        // defaultFunction pulls from second arg if available
+    } else if (commonwealth.utils.isFunction(methodName_or_defaultFunction)) {
+        defaultFunction = methodName_or_defaultFunction;
+        if (defaultFunction.name === "") {
+            throw commonwealth.CLOSURE_ERROR;
+        }
+        methodName = defaultFunction.name;
+    }
+
     // Check to see if the state already has the method.
     if (commonwealth.utils.hasMethod(this, methodName) === false) {
         this[methodName] = function() {
-            var state = this.getCurrentState(),
-                result = null;
+            // check currentState for function, if not present, forward to it's current state until end is reached.
 
-            if (commonwealth.utils.hasMethod(state, methodName)) {
+            var iterator = this.getCurrentState(),
+                result = null,
+                defaultFunction = this[methodName].defaultFunction,
+                firstStateWithMethodDefined = null,
+                state;
+
+            while (iterator && !firstStateWithMethodDefined) {
+                if (commonwealth.utils.hasMethod(iterator, methodName)) {
+                    firstStateWithMethodDefined = iterator;
+                } else {
+                    iterator = iterator.getCurrentState();
+                }
+            }
+
+            state = firstStateWithMethodDefined;
+
+            if (state) {
                 result = state[methodName].apply(state, arguments);
             }
-            // else if (defaultFunc) {
-            //    result = defaultFunc.apply(this, arguments);
-            //} else {
+            else if (defaultFunction) {
+                result = defaultFunction.apply(this, arguments);
+            }
+            // else {
                 // console.log("No method found called " + methodName + " in this state and no default method defined.");
             //}
 
@@ -115,10 +170,17 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
         };
     }
 
-    for (var i in this.states) {
-        var state = this.states[i];
-        state.addStateMethod(methodName);
+    var method = this[methodName];
+    if (method && defaultFunction) {
+        method.defaultFunction = defaultFunction;
     }
+
+    // for (var i in this.states) {
+    //     var state = this.states[i];
+    //     state.addStateMethod(methodName);
+    // }
+
+    return method;
 };
 
 //// CONVERSION METHODS
@@ -162,3 +224,6 @@ commonwealth.utils = {
         return obj;
     }
 };
+
+/** An error thrown when a closure is used where a named function is expected. */
+commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
