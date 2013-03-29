@@ -128,7 +128,7 @@ commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) 
  * If one doesn't exist, it automatically creates it and assigns it
  * the name parameter.
  *
- * @param state {(commonwealth.Stateful|string)}
+ * @param state {(commonwealth.Stateful|string)} The state to register or the name of a state to create.
  * @return {commonwealth.Stateful} A reference to the state object
  *         that was passed in or created.
  */
