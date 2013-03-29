@@ -12,6 +12,7 @@ var commonwealth = commonwealth || {};
  * both instances of Stateful.
  *
  * @constructor
+ * @this {commonwealth.Stateful}
  *
  * @param name {string} [optional] The name (id) of this state.
  */
@@ -19,10 +20,13 @@ commonwealth.Stateful = function (name) {
     var _ = commonwealth.utils;
 
     var currentState = null;
-    this._parentState = null;
     this.states = {};
-    this._stateID = 0;
     this.name = name;
+
+    /** @private */
+    this._stateID = 0;
+    /** @private */
+    this._parentState = null;
 
     /**
     * Returns the current state.
@@ -36,6 +40,12 @@ commonwealth.Stateful = function (name) {
     /**
     * Sets the current state and calls the appropriate
     * methods to enter and exit the state.
+    *
+    * @this {commonwealth.Stateful}
+    *
+    * @param newState {(string|commonwealth.Stateful)}
+    *        The new current state or it's name only.
+    * @return {commonwealth.Stateful} Returns the currentState just set.
     */
     this.setCurrentState = function setCurrentState (newState) {
         var oldState = currentState;
@@ -68,6 +78,15 @@ commonwealth.Stateful = function (name) {
     };
 };
 
+/**
+ * Combination getter/setter for currentState using the JQuery style.
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @param {string|commonwealth.Stateful} [Optional] If supplied, the
+ *        currentState is set to this value.
+ * @return {commonwealth.Stateful} The current state or null.
+ */
 commonwealth.Stateful.prototype.currentState = function currentState (state) {
     if (state) {
         return this.setCurrentState(state);
@@ -76,7 +95,16 @@ commonwealth.Stateful.prototype.currentState = function currentState (state) {
     }
 };
 
+/**
+ * Gets the most distant ancestor of this state which is not null
+ * or returns `this`.
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @return {commonwealth.Stateful}
+ */
 commonwealth.Stateful.prototype.finalCurrentState = function finalCurrentState() {
+    // TODO: rename this
     var currentState = this.getCurrentState();
     if (currentState === null) {
         return this;
@@ -84,6 +112,13 @@ commonwealth.Stateful.prototype.finalCurrentState = function finalCurrentState()
     return currentState.finalCurrentState();
 };
 
+/**
+ * Gets a substate of a stateful object based on the name property of that state.
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @return {commonwealth.Stateful}
+ */
 commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) {
     return this.states[name];
 };
@@ -134,7 +169,7 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
  * @param defaultFunction [optional] A function to be called as the default if there is nothing defined in the substate.
  */
 commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName_or_defaultFunction, defaultFunction) {
-    var methodName, 
+    var methodName,
         _ = commonwealth.utils;
 
     // determine if the method name is the first parameter or
