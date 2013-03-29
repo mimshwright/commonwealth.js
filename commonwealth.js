@@ -123,6 +123,15 @@ commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) 
     return this.states[name];
 };
 
+/**
+ * Registers a state as a substate of the Stateful object.
+ * If one doesn't exist, it automatically creates it and assigns it
+ * the name parameter.
+ *
+ * @param state {(commonwealth.Stateful|string)}
+ * @return {commonwealth.Stateful} A reference to the state object
+ *         that was passed in or created.
+ */
 commonwealth.Stateful.prototype.addSubstate = function addSubstate (state) {
     var name;
 
@@ -287,5 +296,7 @@ commonwealth.utils = {
     }
 };
 
-/** An error thrown when a closure is used where a named function is expected. */
+/**
+ * An error thrown when a closure is used where a named function is expected.
+ */
 commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
