@@ -3,6 +3,18 @@
  */
 var commonwealth = commonwealth || {};
 
+/**
+ * Stateful is the main class in commonwealth. It represents an
+ * object that is both a stateful (having states) and a state.
+ * It is a composite state object.
+ * For example, this may represent the backend for a login button
+ * that contains two states, loggedIn and loggedOut which are also
+ * both instances of Stateful.
+ *
+ * @constructor
+ *
+ * @param name {string} [optional] The name (id) of this state.
+ */
 commonwealth.Stateful = function (name) {
     var _ = commonwealth.utils;
 
@@ -14,6 +26,8 @@ commonwealth.Stateful = function (name) {
 
     /**
     * Returns the current state.
+    *
+    * @return {commonwealth.Stateful}
     */
     this.getCurrentState = function getCurrentState () {
         return currentState;
