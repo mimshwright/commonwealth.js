@@ -1,0 +1,15 @@
+###MacOS###
+.DS_Store
+
+###SublimeText###
+
+# SublimeText project files
+/*.sublime-project
+*.sublime-workspace
+sftp-config*.json
+
+<<<<<<< HEAD
+jsdoc
+=======
+jsdoc
+>>>>>>> updated git ignore for docs
