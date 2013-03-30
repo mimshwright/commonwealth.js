@@ -26,10 +26,8 @@ test ("addSubstate() method", function () {
 
 	var newStateFromString = stateful.addSubstate("fromString");
 	equal(newStateFromString, stateful.states.fromString, "addSubstate(string) creates a state object, adds it, and returns a reference to it.");
-	var noName = stateful.addSubstate();
 
-	equal(noName, stateful.states.state0, "Using addSubstate() with no arguments produces a new state with an automatically generated name starting with 'state0'");
-	equal(stateful.addSubstate().name, "state1", "Each additional call automatically increments the state name.");
+	raises(function () { var noName = stateful.addSubstate();}, "You must provide an argument or you get an error.");
 });
 
 test ("currentState() method", function () {

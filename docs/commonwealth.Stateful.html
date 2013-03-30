@@ -180,6 +180,156 @@ both instances of Stateful.
         <dl>
             
 <dt>
+    <h4 class="name" id="addCurrentState"><span class="type-signature"></span>addCurrentState<span class="signature">(state)</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Adds a substate and sets it as the current state in one fell swoop!
+    </div>
+    
+
+    
+    
+    
+        <h5>This:</h5>
+        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>state</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">See addSubstate();</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 186
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="commonwealth.Stateful.html#addSubstate">commonwealth.Stateful#addSubstate</a></li>
+        
+            <li>commonwealth.Stateful#setCurrentState</li>
+        </ul>
+    </dd>
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The current state.
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="addStateMethod"><span class="type-signature"></span>addStateMethod<span class="signature">(methodName_or_defaultFunction, defaultFunction)</span><span class="type-signature"></span></h4>
     
     
@@ -283,7 +433,7 @@ state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 180
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 218
     </li></ul></dd>
     
     
@@ -307,7 +457,7 @@ state.
         
             
 <dt>
-    <h4 class="name" id="addSubstate"><span class="type-signature"></span>addSubstate<span class="signature">(state)</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    <h4 class="name" id="addSubstate"><span class="type-signature"></span>addSubstate<span class="signature">(state_or_name)</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
     
     
 </dt>
@@ -351,7 +501,7 @@ the name parameter.
 	
         <tr>
             
-                <td class="name"><code>state</code></td>
+                <td class="name"><code>state_or_name</code></td>
             
             
             <td class="type">
@@ -401,7 +551,7 @@ the name parameter.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 135
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 149
     </li></ul></dd>
     
     
@@ -416,6 +566,24 @@ the name parameter.
     
     
     
+    <h5>Throws:</h5>
+    <ul>
+            <li>
+<div class="param-desc">
+    Argument Error if there is no state_or_name argument.
+</div>
+
+
+</li>
+        
+            <li>
+<div class="param-desc">
+    Invalid State ID Error if the name of the state provided is bogus.
+</div>
+
+
+</li>
+        </ul>
     
     
     <h5>Returns:</h5>
@@ -554,7 +722,7 @@ the name parameter.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 90
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 101
     </li></ul></dd>
     
     
@@ -645,7 +813,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 106
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 117
     </li></ul></dd>
     
     
@@ -731,7 +899,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 122
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 133
     </li></ul></dd>
     
     
@@ -751,6 +919,98 @@ or returns `this`.
     <h5>Returns:</h5>
     
             
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="parentState"><span class="type-signature"></span>parentState<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the state one higher in the chain. If state A uses
+setCurrentState() on state B, B.parentState() points to A.
+If there is no parent state, returns null.
+    </div>
+    
+
+    
+    
+    
+        <h5>This:</h5>
+        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 200
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The parent state of this or null.
+</div>
+
 
 
 <dl>
@@ -792,7 +1052,7 @@ or returns `this`.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Fri Mar 29 2013 02:02:16 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Sat Mar 30 2013 08:27:19 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
