@@ -294,10 +294,21 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
 
 //// CONVERSION METHODS
 
+/**
+ * Standard implementation of toString() that returns the object type.
+ *
+ * @returns {string}
+ */
 commonwealth.Stateful.prototype.toString = function toString () {
     return "[object commonwealth.Stateful]";
 };
 
+/**
+ * Returns an array of Stateful objects for the given object starting
+ * with the object's root state and extending to the finalCurrentState.
+ * 
+ * @returns {array}
+ */
 commonwealth.Stateful.prototype.stateChainToArray = function stateChainToArray () {
     var state = this.rootState(),
         array = [];
@@ -312,6 +323,7 @@ commonwealth.Stateful.prototype.stateChainToArray = function stateChainToArray (
 
 /**
 * Utility functions copied from Underscore.js
+* @namespace
 */
 commonwealth.utils = {
     toString : Object.prototype.toString,
