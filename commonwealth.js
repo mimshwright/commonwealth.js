@@ -14,7 +14,7 @@ var commonwealth = commonwealth || {};
  * @constructor
  * @this {commonwealth.Stateful}
  *
- * @param name {string} [optional] The name (id) of this state.
+ * @param [name] {string} The name (id) of this state.
  */
 commonwealth.Stateful = function (name) {
     var _ = commonwealth.utils;
@@ -94,7 +94,7 @@ commonwealth.Stateful = function (name) {
  *
  * @this {commonwealth.Stateful}
  *
- * @param {string|commonwealth.Stateful} [Optional] If supplied, the
+ * @param [state] {string|commonwealth.Stateful} If supplied, the
  *        currentState is set to this value.
  * @return {commonwealth.Stateful} The current state or null.
  */
@@ -213,7 +213,7 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
  * state.
  *
  * @param methodName_or_defaultFunction The name of the function to register, or a defaultFunction with a name.
- * @param defaultFunction [optional] A function to be called as the default if there is nothing defined in the substate.
+ * @param [defaultFunction] A function to be called as the default if there is nothing defined in the substate.
  */
 commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName_or_defaultFunction, defaultFunction) {
     var methodName,
