@@ -3,6 +3,22 @@
  */
 var commonwealth = commonwealth || {};
 
+
+/**
+ * An error thrown when a closure is used where a named function is expected.
+ */
+commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
+
+/**
+ * An error thrown when a method is missing a required argument.
+ */
+commonwealth.ARGUMENT_ERROR = {message: "A required argument is missing."};
+
+/**
+ * An error thrown when a state name isn't valid.
+ */
+commonwealth.INVALID_STATE_ID_ERROR = {message: "The name of a state cannot be ''"};
+
 /**
  * Stateful is the main class in commonwealth. It represents an
  * object that is both a stateful (having states) and a state.
@@ -33,6 +49,14 @@ commonwealth.Stateful = function (name) {
      * @type {string}
      */
     this.name = name;
+
+    /**
+     * A reference to the history object for this Stateful.
+     * The history object records the history of the different states
+     * set on the Stateful object.
+     * @type {commonwealth.History}
+     */
+    this.history = new commonwealth.History(this);
 
     /** @private */
     var currentState = null;
@@ -77,6 +101,10 @@ commonwealth.Stateful = function (name) {
             }
 
             currentState = newState;
+
+            if (this.history) {
+                this.history.addState(oldState);
+            }
 
             if (newState) {
                 newState._parentState = this;
@@ -349,17 +377,96 @@ commonwealth.utils = {
     }
 };
 
-/**
- * An error thrown when a closure is used where a named function is expected.
- */
-commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
+
+////////// HISTORY ////////////
 
 /**
- * An error thrown when a method is missing a required argument.
+ * Stateful history object.
+ * Responsible for recording references to the past states of a stateful
+ * object.
+ *
+ * @constructor
+ *
+ * @this {commonwealth.History}
+ *
+ * @param stateful {commonwealth.Stateful} A reference to the stateful object that this history represents.
  */
-commonwealth.ARGUMENT_ERROR = {message: "A required argument is missing."};
+commonwealth.History = function History (stateful) {
+
+    /**
+     * Returns a reference to the stateful for which the history is recorded.
+     * @returns {commonwealth.Stateful}
+     */
+    this.getStateful = function getStateful () {
+        return stateful;
+    };
+
+    /**
+     * An array representing the history of current states in a Stateful object.
+     * @type {array}
+     */
+    this.states = null;
+
+    // initialize the object.
+    this.clear();
+};
 
 /**
- * An error thrown when a state name isn't valid.
+ * The previous state in the history.
+ * @returns {commonwealth.Stateful}
  */
-commonwealth.INVALID_STATE_ID_ERROR = {message: "The name of a state cannot be ''"};
+commonwealth.History.prototype.getPreviousState = function getPreviousState() {
+    return this.states[this.states.length - 1];
+};
+
+/**
+* Erases the history. Doesn't change the current state.
+*
+* @this {commonwealth.History}
+*/
+commonwealth.History.prototype.clear = function clear () {
+    this.states = [];
+};
+/**
+* Shortcut function to get the number of states stored in history.
+*
+* @this {commonwealth.History}
+*/
+commonwealth.History.prototype.getLength = function getLength () {
+    return this.states.length;
+};
+/**
+* Adds a state to the history array.
+*
+* @this {commonwealth.History}
+*
+* @param state {commonwealth.Stateful} The state to add.
+*/
+commonwealth.History.prototype.addState = function addState (state) {
+    this.states.push(state);
+};
+/**
+* Steps back by one state. Changes the current state of the stateful
+* object.
+*
+* @this {commonwealth.History}
+*/
+commonwealth.History.prototype.rewind = function rewind () {
+  if (this.states.length > 1) {
+    var stateful = this.getStateful(),
+        state = this.states.pop();
+    stateful.setCurrentState(state);
+    // remove the state which was added back on when
+    // setCurrentState() was called.
+    this.states.pop();
+  }
+};
+
+/**
+ * Standard implementation of toString() that returns the object type.
+ *
+ * @returns {string}
+ */
+commonwealth.History.prototype.toString = function toString () {
+    return "[object commonwealth.History]";
+};

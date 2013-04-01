@@ -270,3 +270,42 @@ test ("stateChainToArray()", function () {
 	// equal(root.stateChainToString(), "*root* > child > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 	// equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 });
+
+
+
+module("History");
+
+test( "History functions", function () {
+    var stateful = new c.Stateful(),
+        history = stateful.history,
+        previousState;
+
+    stateful.addSubstate("a");
+    stateful.addSubstate("b");
+
+    equal (stateful, history.getStateful(), "History has a reference to the stateful object.");
+
+    equal (0, history.states.length, "The history should be empty before a state is set on the stateful object.");
+
+    stateful.setCurrentState("a");
+    equal (null, history.previousState, "The history should be record it when a state is set on the stateful object. The first state in the history should be null if that was the first state of the stateful object.");
+
+    previousState = stateful.getCurrentState();
+    stateful.setCurrentState("b");
+    equal (history.getPreviousState().name, previousState.name, "getPreviousState() tracks the previous state of the stateful object.");
+
+    var previousLength = history.states.length;
+    stateful.setCurrentState(stateful.getCurrentState());
+    equal (history.states.length, previousLength, "Setting the current state to the same state doesn't change the history.");
+
+    equal(history.getLength(), history.states.length, "getLength() is a shortcut for getting the length of the array in the history object.");
+
+    var preRewindLength = history.getLength();
+    history.rewind();
+    var postRewindLength = history.getLength();
+    equal (stateful.getCurrentState().name, previousState.name, "Calling rewind() goes to the previous state.");
+    equal (preRewindLength - postRewindLength, 1);
+
+    history.clear();
+    equal (history.states.length, 0, "Calling clear() clears the history.");
+});
