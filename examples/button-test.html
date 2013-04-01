@@ -27,9 +27,9 @@
 	<script>
 		var buttonController = new commonwealth.Stateful();
 		buttonController.view = document.getElementById("btn");
-		buttonController.addStateMethod( 
-			function setLabel (labelText){ 
-				this.view.innerHTML = labelText; 
+		buttonController.addStateMethod(
+			function setLabel (labelText){
+				this.view.innerHTML = labelText;
 			}
 		);
 		buttonController.addStateMethod("onClick");
