@@ -282,6 +282,9 @@ test( "History functions", function () {
 
     stateful.addSubstate("a");
     stateful.addSubstate("b");
+    stateful.addSubstate("c");
+    stateful.addSubstate("d");
+    stateful.addSubstate("e");
 
     equal (stateful, history.getStateful(), "History has a reference to the stateful object.");
 
@@ -303,8 +306,17 @@ test( "History functions", function () {
     var preRewindLength = history.getLength();
     history.rewind();
     var postRewindLength = history.getLength();
-    equal (stateful.getCurrentState().name, previousState.name, "Calling rewind() goes to the previous state.");
-    equal (preRewindLength - postRewindLength, 1);
+    equal (stateful.getCurrentState().name, "a", "Calling rewind() goes to the previous state.");
+    equal (preRewindLength - postRewindLength, 1, "The length property changes when rewinding.");
+
+    stateful.currentState("b");
+    stateful.currentState("c");
+    stateful.currentState("d");
+    stateful.currentState("e");
+    history.rewind(3);
+    equal (stateful.getCurrentState().name, "b", "Calling rewind(n) goes back n steps. rewind() is the same as rewind(1)");
+    history.rewind(1000);
+    equal (stateful.history.getLength(), 0, "You can only go back at most a number of steps equal to the length of the history.");
 
     history.clear();
     equal (history.states.length, 0, "Calling clear() clears the history.");

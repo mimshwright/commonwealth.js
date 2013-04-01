@@ -420,46 +420,58 @@ commonwealth.History.prototype.getPreviousState = function getPreviousState() {
 };
 
 /**
-* Erases the history. Doesn't change the current state.
-*
-* @this {commonwealth.History}
-*/
+ * Erases the history. Doesn't change the current state.
+ *
+ * @this {commonwealth.History}
+ */
 commonwealth.History.prototype.clear = function clear () {
     this.states = [];
 };
+
 /**
-* Shortcut function to get the number of states stored in history.
-*
-* @this {commonwealth.History}
-*/
+ * Shortcut function to get the number of states stored in history.
+ *
+ * @this {commonwealth.History}
+ */
 commonwealth.History.prototype.getLength = function getLength () {
     return this.states.length;
 };
+
 /**
-* Adds a state to the history array.
-*
-* @this {commonwealth.History}
-*
-* @param state {commonwealth.Stateful} The state to add.
-*/
+ * Adds a state to the history array.
+ *
+ * @this {commonwealth.History}
+ *
+ * @param state {commonwealth.Stateful} The state to add.
+ */
 commonwealth.History.prototype.addState = function addState (state) {
     this.states.push(state);
 };
+
 /**
-* Steps back by one state. Changes the current state of the stateful
-* object.
-*
-* @this {commonwealth.History}
-*/
-commonwealth.History.prototype.rewind = function rewind () {
-  if (this.states.length > 1) {
-    var stateful = this.getStateful(),
-        state = this.states.pop();
-    stateful.setCurrentState(state);
-    // remove the state which was added back on when
-    // setCurrentState() was called.
-    this.states.pop();
-  }
+ * Rolls back the state changes. Changes the current state of the stateful
+ * object by the specified number of steps.
+ *
+ * @this {commonwealth.History}
+ *
+ * @param [steps] {number} The number of steps to go back. Default is 1.
+ */
+commonwealth.History.prototype.rewind = function rewind (steps) {
+    var state, stateful;
+
+    steps = steps || 1;
+    steps = Math.min(Math.max(1, steps), this.states.length);
+
+    if (this.states.length > 1) {
+        stateful = this.getStateful();
+        while (steps-- > 0) {
+            state = this.states.pop();
+        }
+        stateful.setCurrentState(state);
+        // remove the state which was added back on when
+        // setCurrentState() was called.
+        this.states.pop();
+    }
 };
 
 /**
