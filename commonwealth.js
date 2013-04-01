@@ -95,7 +95,9 @@ commonwealth.Stateful = function (name) {
  * @this {commonwealth.Stateful}
  *
  * @param [state] {string|commonwealth.Stateful} If supplied, the
- *        currentState is set to this value.
+ *        currentState is set to this value. If the value is a stateful
+ *        object, that object is used. If the value is a string, the
+ *        string is interpreted as a state name.
  * @return {commonwealth.Stateful} The current state or null.
  */
 commonwealth.Stateful.prototype.currentState = function currentState (state) {
@@ -209,8 +211,14 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
 };
 
 /**
- * Register a method to be handled by the stateful object's current
- * state.
+ * Registers a method to be handled by the stateful object's current
+ * state. When the method is called, the currentState() is checked to see
+ * if it has an implementation of the method. This check cascades up the chain
+ * to all subclass ancestors until the first one with the method defined is found.
+ * If the method is never found in a subclass, the default method is called instead.
+ * If the function has a function defined on it named `before` or `after`, that function
+ * is called before or after the main function is called (regardless of what subclass
+ * is ultimately used).
  *
  * @param methodName_or_defaultFunction The name of the function to register, or a defaultFunction with a name.
  * @param [defaultFunction] A function to be called as the default if there is nothing defined in the substate.
@@ -284,11 +292,6 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
         method.defaultFunction = defaultFunction;
     }
 
-    // for (var i in this.states) {
-    //     var state = this.states[i];
-    //     state.addStateMethod(methodName);
-    // }
-
     return method;
 };
 
@@ -306,7 +309,7 @@ commonwealth.Stateful.prototype.toString = function toString () {
 /**
  * Returns an array of Stateful objects for the given object starting
  * with the object's root state and extending to the finalCurrentState.
- * 
+ *
  * @returns {array}
  */
 commonwealth.Stateful.prototype.stateChainToArray = function stateChainToArray () {

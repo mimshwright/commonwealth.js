@@ -27,15 +27,19 @@
 	<script>
 		var buttonController = new commonwealth.Stateful();
 		buttonController.view = document.getElementById("btn");
-		buttonController.setLabel = function (labelText) {
-			this.view.innerHTML = labelText;
-		}
+		buttonController.addStateMethod( 
+			function setLabel (labelText){ 
+				this.view.innerHTML = labelText; 
+			}
+		);
 		buttonController.addStateMethod("onClick");
+
+		// Listen for clicks.
 		buttonController.view.addEventListener("click", function () {
 			buttonController.onClick();
 		});
 
-		var onState = new commonwealth.Stateful("on");
+		var onState = buttonController.addSubstate("on");
 		onState.enter = function () {
 			this.rootState().setLabel("ON");
 		}
@@ -44,7 +48,7 @@
 			this.rootState().currentState("off");
 		}
 
-		var offState = new commonwealth.Stateful("off");
+		var offState = buttonController.addSubstate("off");
 		offState.enter = function () {
 			this.rootState().setLabel("OFF");
 		}
@@ -53,8 +57,6 @@
 			this.rootState().currentState("on");
 		}
 
-		buttonController.addSubstate(onState);
-		buttonController.addSubstate(offState);
 		buttonController.currentState("on");
 	</script>
 </body>
