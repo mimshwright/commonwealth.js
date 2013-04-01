@@ -30,6 +30,22 @@
  */
 var commonwealth = commonwealth || {};
 
+
+/**
+ * An error thrown when a closure is used where a named function is expected.
+ */
+commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
+
+/**
+ * An error thrown when a method is missing a required argument.
+ */
+commonwealth.ARGUMENT_ERROR = {message: "A required argument is missing."};
+
+/**
+ * An error thrown when a state name isn't valid.
+ */
+commonwealth.INVALID_STATE_ID_ERROR = {message: "The name of a state cannot be ''"};
+
 /**
  * Stateful is the main class in commonwealth. It represents an
  * object that is both a stateful (having states) and a state.
@@ -60,6 +76,14 @@ commonwealth.Stateful = function (name) {
      * @type {string}
      */
     this.name = name;
+
+    /**
+     * A reference to the history object for this Stateful.
+     * The history object records the history of the different states
+     * set on the Stateful object.
+     * @type {commonwealth.History}
+     */
+    this.history = new commonwealth.History(this);
 
     /** @private */
     var currentState = null;
@@ -105,6 +129,10 @@ commonwealth.Stateful = function (name) {
 
             currentState = newState;
 
+            if (this.history) {
+                this.history.addState(oldState);
+            }
+
             if (newState) {
                 newState._parentState = this;
                 if (_.hasMethod(newState, "enter")) {
@@ -122,7 +150,9 @@ commonwealth.Stateful = function (name) {
  * @this {commonwealth.Stateful}
  *
  * @param [state] {string|commonwealth.Stateful} If supplied, the
- *        currentState is set to this value.
+ *        currentState is set to this value. If the value is a stateful
+ *        object, that object is used. If the value is a string, the
+ *        string is interpreted as a state name.
  * @return {commonwealth.Stateful} The current state or null.
  */
 commonwealth.Stateful.prototype.currentState = function currentState (state) {
@@ -236,8 +266,14 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
 };
 
 /**
- * Register a method to be handled by the stateful object's current
- * state.
+ * Registers a method to be handled by the stateful object's current
+ * state. When the method is called, the currentState() is checked to see
+ * if it has an implementation of the method. This check cascades up the chain
+ * to all subclass ancestors until the first one with the method defined is found.
+ * If the method is never found in a subclass, the default method is called instead.
+ * If the function has a function defined on it named `before` or `after`, that function
+ * is called before or after the main function is called (regardless of what subclass
+ * is ultimately used).
  *
  * @param methodName_or_defaultFunction The name of the function to register, or a defaultFunction with a name.
  * @param [defaultFunction] A function to be called as the default if there is nothing defined in the substate.
@@ -311,11 +347,6 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
         method.defaultFunction = defaultFunction;
     }
 
-    // for (var i in this.states) {
-    //     var state = this.states[i];
-    //     state.addStateMethod(methodName);
-    // }
-
     return method;
 };
 
@@ -333,7 +364,7 @@ commonwealth.Stateful.prototype.toString = function toString () {
 /**
  * Returns an array of Stateful objects for the given object starting
  * with the object's root state and extending to the finalCurrentState.
- * 
+ *
  * @returns {array}
  */
 commonwealth.Stateful.prototype.stateChainToArray = function stateChainToArray () {
@@ -373,20 +404,111 @@ commonwealth.utils = {
     }
 };
 
-/**
- * An error thrown when a closure is used where a named function is expected.
- */
-commonwealth.CLOSURE_ERROR = {message: "Anonymous function cannot be added this way."};
+
+////////// HISTORY ////////////
 
 /**
- * An error thrown when a method is missing a required argument.
+ * Stateful history object.
+ * Responsible for recording references to the past states of a stateful
+ * object.
+ *
+ * @constructor
+ *
+ * @this {commonwealth.History}
+ *
+ * @param stateful {commonwealth.Stateful} A reference to the stateful object that this history represents.
  */
-commonwealth.ARGUMENT_ERROR = {message: "A required argument is missing."};
+commonwealth.History = function History (stateful) {
+
+    /**
+     * Returns a reference to the stateful for which the history is recorded.
+     * @returns {commonwealth.Stateful}
+     */
+    this.getStateful = function getStateful () {
+        return stateful;
+    };
+
+    /**
+     * An array representing the history of current states in a Stateful object.
+     * @type {array}
+     */
+    this.states = null;
+
+    // initialize the object.
+    this.clear();
+};
 
 /**
- * An error thrown when a state name isn't valid.
+ * The previous state in the history.
+ * @returns {commonwealth.Stateful}
  */
-commonwealth.INVALID_STATE_ID_ERROR = {message: "The name of a state cannot be ''"};</code></pre>
+commonwealth.History.prototype.getPreviousState = function getPreviousState() {
+    return this.states[this.states.length - 1];
+};
+
+/**
+ * Erases the history. Doesn't change the current state.
+ *
+ * @this {commonwealth.History}
+ */
+commonwealth.History.prototype.clear = function clear () {
+    this.states = [];
+};
+
+/**
+ * Shortcut function to get the number of states stored in history.
+ *
+ * @this {commonwealth.History}
+ */
+commonwealth.History.prototype.getLength = function getLength () {
+    return this.states.length;
+};
+
+/**
+ * Adds a state to the history array.
+ *
+ * @this {commonwealth.History}
+ *
+ * @param state {commonwealth.Stateful} The state to add.
+ */
+commonwealth.History.prototype.addState = function addState (state) {
+    this.states.push(state);
+};
+
+/**
+ * Rolls back the state changes. Changes the current state of the stateful
+ * object by the specified number of steps.
+ *
+ * @this {commonwealth.History}
+ *
+ * @param [steps] {number} The number of steps to go back. Default is 1.
+ */
+commonwealth.History.prototype.rewind = function rewind (steps) {
+    var state, stateful;
+
+    steps = steps || 1;
+    steps = Math.min(Math.max(1, steps), this.states.length);
+
+    if (this.states.length > 1) {
+        stateful = this.getStateful();
+        while (steps-- > 0) {
+            state = this.states.pop();
+        }
+        stateful.setCurrentState(state);
+        // remove the state which was added back on when
+        // setCurrentState() was called.
+        this.states.pop();
+    }
+};
+
+/**
+ * Standard implementation of toString() that returns the object type.
+ *
+ * @returns {string}
+ */
+commonwealth.History.prototype.toString = function toString () {
+    return "[object commonwealth.History]";
+};</code></pre>
         </article>
     </section>
 
@@ -396,13 +518,13 @@ commonwealth.INVALID_STATE_ID_ERROR = {message: "The name of a state cannot be '
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="commonwealth.Stateful.html">Stateful</a></li></ul><h3>Namespaces</h3><ul><li><a href="commonwealth.html">commonwealth</a></li><li><a href="commonwealth.utils.html">utils</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="commonwealth.History.html">History</a></li><li><a href="commonwealth.Stateful.html">Stateful</a></li></ul><h3>Namespaces</h3><ul><li><a href="commonwealth.html">commonwealth</a></li><li><a href="commonwealth.utils.html">utils</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Sun Mar 31 2013 07:35:01 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 01 2013 11:52:12 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
