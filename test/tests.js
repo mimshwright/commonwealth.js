@@ -271,7 +271,26 @@ test ("stateChainToArray()", function () {
 	// equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 });
 
+module ("Transitions");
 
+test ("Transitions", function () {
+	var parent = new c.Stateful("parent");
+	var son = parent.addCurrentState("son");
+	var daughter = parent.addSubstate("daughter");
+	var stepDaughter = parent.addSubstate("stepDaughter");
+
+	parent.addTransition("changeGender", {"son":"daughter", "daughter":"son"} );
+	parent.addTransition("firstSon", {"*":"son"});
+
+	equal (parent.currentState(), son, "Start with son.");
+	parent.changeGender();
+	equal (parent.currentState(), daughter, "Changed state with transition.");
+	parent.changeGender();
+	equal (parent.currentState(), son, "Transitions happen based on context.");
+	parent.currentState(stepDaughter);
+	parent.firstSon();
+	equal (parent.currentState(), son, "Wildcard transitions with *.");
+});
 
 module("History");
 

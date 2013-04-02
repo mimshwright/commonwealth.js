@@ -323,6 +323,20 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
     return method;
 };
 
+commonwealth.Stateful.prototype.addTransition = function (transition, map) {
+    var state;
+
+    this.addStateMethod(transition, function () {
+        for (var key in map) {
+            state = map[key];
+            if (key === "*" || this.getStateByName(key) == this.getCurrentState()) {
+                this.setCurrentState(state);
+                return;
+            }
+        }
+    });
+};
+
 //// CONVERSION METHODS
 
 /**
