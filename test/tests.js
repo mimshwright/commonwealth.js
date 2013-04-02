@@ -283,13 +283,15 @@ test ("Transitions", function () {
 	parent.addTransition("firstSon", {"*":"son"});
 
 	equal (parent.currentState(), son, "Start with son.");
-	parent.changeGender();
+	parent.dispatch("changeGender");
 	equal (parent.currentState(), daughter, "Changed state with transition.");
-	parent.changeGender();
+	parent.dispatch("changeGender");
 	equal (parent.currentState(), son, "Transitions happen based on context.");
 	parent.currentState(stepDaughter);
-	parent.firstSon();
+	parent.dispatch("firstSon");
 	equal (parent.currentState(), son, "Wildcard transitions with *.");
+	parent.changeGender();
+	equal (parent.currentState(), daughter, "Transitions can be triggered with a method call too.");
 });
 
 module("History");

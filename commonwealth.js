@@ -43,6 +43,12 @@ commonwealth.Stateful = function (name) {
     this.states = {};
 
     /**
+     * A hash of transition maps.
+     * @type {object}
+     */
+     this.transitions = {};
+
+    /**
      * A name (id) for the state. This name will be used
      * when referring to the state by a string rather than
      * by reference.
@@ -326,6 +332,8 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
 commonwealth.Stateful.prototype.addTransition = function (transition, map) {
     var state;
 
+    this.transitions[transition] = map;
+
     this.addStateMethod(transition, function () {
         for (var key in map) {
             state = map[key];
@@ -335,6 +343,23 @@ commonwealth.Stateful.prototype.addTransition = function (transition, map) {
             }
         }
     });
+
+};
+
+commonwealth.Stateful.prototype.dispatch = function (transition) {
+    var map = this.transitions[transition],
+        state,
+        key;
+
+    for (key in map) {
+        state = map[key];
+        if (key === "*" || this.getStateByName(key) === this.getCurrentState()) {
+            this.setCurrentState(state);
+            return;
+        }
+    }
+
+    // todo: make it work in nested situations.
 };
 
 //// CONVERSION METHODS
