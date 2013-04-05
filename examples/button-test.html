@@ -32,7 +32,6 @@
 				this.view.innerHTML = labelText;
 			}
 		);
-		buttonController.addStateMethod("onClick");
 
 		// Listen for clicks.
 		buttonController.view.addEventListener("click", function () {
@@ -41,21 +40,20 @@
 
 		var onState = buttonController.addSubstate("on");
 		onState.enter = function () {
+			console.log("clicked off");
 			this.rootState().setLabel("ON");
-		}
-		onState.onClick = function () {
-			console.log("clicked on");
-			this.rootState().currentState("off");
 		}
 
 		var offState = buttonController.addSubstate("off");
 		offState.enter = function () {
+			console.log("clicked on");
 			this.rootState().setLabel("OFF");
 		}
-		offState.onClick = function () {
-			console.log("clicked off");
-			this.rootState().currentState("on");
-		}
+
+		buttonController.addTransition( "onClick", {
+			"on": "off",
+			"off": "on"
+		});
 
 		buttonController.currentState("on");
 	</script>

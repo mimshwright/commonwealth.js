@@ -329,23 +329,42 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
     return method;
 };
 
+/**
+ * Registers a one or more state changes that occur when a message is
+ * dispatched using dispatch(). Also, this automatically registers a
+ * method that dispatches the event for you (using addStateMethod()).
+ * Once a transition is registered, you can use either dispatch() or
+ * the generated method to transition.
+ * e.g. dispatch("foo"); or foo();
+ *
+ * The map of state changes is an object with names of states paired
+ * with the state they should change to when the transition event is
+ * dispatched. "*" can be used to match any state.
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @param transition {string} The name of the transition to register.
+ * @param map {object} An object with mappings of states to transition
+ *                     to and from.
+ * @return The method created for transitioning.
+ */
 commonwealth.Stateful.prototype.addTransition = function (transition, map) {
     var state;
 
     this.transitions[transition] = map;
 
-    this.addStateMethod(transition, function () {
-        for (var key in map) {
-            state = map[key];
-            if (key === "*" || this.getStateByName(key) == this.getCurrentState()) {
-                this.setCurrentState(state);
-                return;
-            }
-        }
+    return this.addStateMethod(transition, function () {
+        this.dispatch(transition);
     });
-
 };
 
+/**
+ * Dispatches a message to all of the children in the state chain.
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @param message {string} A message that is broadcast.
+ */
 commonwealth.Stateful.prototype.dispatch = function (transition) {
     var map = this.transitions[transition],
         state,

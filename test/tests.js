@@ -271,7 +271,11 @@ test ("stateChainToArray()", function () {
 	// equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 });
 
-module ("Transitions");
+module ("Dispatching messages.");
+
+test ("Message handlers", function () {
+	var parent = new c.Stateful("parent");
+});
 
 test ("Transitions", function () {
 	var parent = new c.Stateful("parent");
@@ -279,19 +283,19 @@ test ("Transitions", function () {
 	var daughter = parent.addSubstate("daughter");
 	var stepDaughter = parent.addSubstate("stepDaughter");
 
-	parent.addTransition("changeGender", {"son":"daughter", "daughter":"son"} );
+	var changeGenderFunc = parent.addTransition("changeGender", {"son":"daughter", "daughter":"son"} );
 	parent.addTransition("firstSon", {"*":"son"});
 
 	equal (parent.currentState(), son, "Start with son.");
 	parent.dispatch("changeGender");
 	equal (parent.currentState(), daughter, "Changed state with transition.");
-	parent.dispatch("changeGender");
-	equal (parent.currentState(), son, "Transitions happen based on context.");
+	changeGenderFunc.call(parent);
+	equal (parent.currentState(), son, "Transitions happen based on context. Transitions can be triggered with a method call too. addTransition() returns a reference to the generated function.");
 	parent.currentState(stepDaughter);
 	parent.dispatch("firstSon");
 	equal (parent.currentState(), son, "Wildcard transitions with *.");
-	parent.changeGender();
-	equal (parent.currentState(), daughter, "Transitions can be triggered with a method call too.");
+	parent.dispatch("foo");
+	equal (parent.currentState(), son, "Unregistered transitions do nothing.");
 });
 
 module("History");
