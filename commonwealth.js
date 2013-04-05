@@ -42,12 +42,6 @@ commonwealth.Stateful = function (name) {
      */
     this.states = {};
 
-    /**
-     * A hash of transition maps.
-     * @type {object}
-     */
-     this.transitions = {};
-
      /**
      * A hash of message handler maps.
      * @type {object}
