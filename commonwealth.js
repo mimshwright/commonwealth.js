@@ -48,6 +48,12 @@ commonwealth.Stateful = function (name) {
      */
      this.transitions = {};
 
+     /**
+     * A hash of message handler maps.
+     * @type {object}
+     */
+     this.handlers = {};
+
     /**
      * A name (id) for the state. This name will be used
      * when referring to the state by a string rather than
@@ -330,6 +336,41 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
 };
 
 /**
+ * Dispatches a message to all of the children in the state chain.
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @param message {string} A message that is broadcast.
+ */
+commonwealth.Stateful.prototype.dispatch = function (message) {
+    var handler = this.handlers[message],
+        current;
+
+    if (handler) {
+        handler.call(this, message);
+    }
+
+    current = this.currentState();
+    if (current) {
+        current.dispatch(message);
+    }
+};
+
+/**
+ * Registers a function that is called when a message is dispatched
+ * using dispatch().
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @param message {string} The message to respond to.
+ * @param handler {function} The function to call when the message is 
+ *                           dispatched.
+ */
+commonwealth.Stateful.prototype.on = function on (message, handler) {
+    this.handlers[message] = handler;
+};
+
+/**
  * Registers a one or more state changes that occur when a message is
  * dispatched using dispatch(). Also, this automatically registers a
  * method that dispatches the event for you (using addStateMethod()).
@@ -349,36 +390,22 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
  * @return The method created for transitioning.
  */
 commonwealth.Stateful.prototype.addTransition = function (transition, map) {
-    var state;
+    var stateChangeFunc = function (transition) {
+        var state,
+            key;
 
-    this.transitions[transition] = map;
-
-    return this.addStateMethod(transition, function () {
-        this.dispatch(transition);
-    });
-};
-
-/**
- * Dispatches a message to all of the children in the state chain.
- *
- * @this {commonwealth.Stateful}
- *
- * @param message {string} A message that is broadcast.
- */
-commonwealth.Stateful.prototype.dispatch = function (transition) {
-    var map = this.transitions[transition],
-        state,
-        key;
-
-    for (key in map) {
-        state = map[key];
-        if (key === "*" || this.getStateByName(key) === this.getCurrentState()) {
-            this.setCurrentState(state);
-            return;
+        for (key in map) {
+            state = map[key];
+            if (key === "*" || this.getStateByName(key) === this.getCurrentState()) {
+                this.setCurrentState(state);
+                return;
+            }
         }
-    }
+    };
 
-    // todo: make it work in nested situations.
+    this.on(transition, stateChangeFunc);
+
+    return stateChangeFunc;
 };
 
 //// CONVERSION METHODS

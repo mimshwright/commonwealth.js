@@ -271,10 +271,47 @@ test ("stateChainToArray()", function () {
 	// equal(child.stateChainToString(), "root > *child* > grandchild", "stateChainToString() produces an string of the current state chain from rootState to finalCurrentState.");
 });
 
-module ("Dispatching messages.");
+module ("Dispatching messages");
 
 test ("Message handlers", function () {
-	var parent = new c.Stateful("parent");
+	var greeter = new c.Stateful("greeter");
+	var en = greeter.addCurrentState("en");
+	var fr = greeter.addSubstate("fr");
+	var de = greeter.addSubstate("de");
+	var formal = de.addCurrentState("formal");
+	var casual = de.addSubstate("casual");
+
+	var message = "Say hello";
+	var result = "";
+
+	en.on(message, function (message) {
+		result = "Hello";
+	});
+	fr.on(message, function (message) {
+		result = "Bonjour";
+	});
+	formal.on(message, function (message) {
+		result = "Guten tag";
+	});
+	casual.on(message, function (message) {
+		result = "Hallo";
+	});
+
+	greeter.dispatch(message);
+	equal(result, "Hello", "Works for English." );
+
+	greeter.currentState("fr");
+	greeter.dispatch(message);
+	equal(result, "Bonjour", "Works for French." );
+
+	greeter.currentState("de");
+	greeter.dispatch(message);
+	equal(result, "Guten tag", "Works for nested German." );
+
+	de.currentState("casual");
+	greeter.dispatch(message);
+	equal(result, "Hallo", "Works for nested German." );
+
 });
 
 test ("Transitions", function () {
@@ -286,6 +323,10 @@ test ("Transitions", function () {
 	var changeGenderFunc = parent.addTransition("changeGender", {"son":"daughter", "daughter":"son"} );
 	parent.addTransition("firstSon", {"*":"son"});
 
+	son.addTransition("changeGrandchildGender", {"grandson": "granddaughter", "granddaughter": "grandson"});
+	son.addCurrentState("grandson");
+	son.addSubstate("granddaughter");
+
 	equal (parent.currentState(), son, "Start with son.");
 	parent.dispatch("changeGender");
 	equal (parent.currentState(), daughter, "Changed state with transition.");
@@ -294,8 +335,13 @@ test ("Transitions", function () {
 	parent.currentState(stepDaughter);
 	parent.dispatch("firstSon");
 	equal (parent.currentState(), son, "Wildcard transitions with *.");
+	parent.dispatch("changeGrandchildGender");
+	equal (son.currentState().name, "granddaughter", "Works with nested states.");
+	parent.currentState("daughter");
+	parent.dispatch("changeGrandchildGender");
+	equal (son.currentState().name, "granddaughter", "Nested states are only affected if they're in the current state chain.");
 	parent.dispatch("foo");
-	equal (parent.currentState(), son, "Unregistered transitions do nothing.");
+	equal (parent.currentState(), daughter, "Unregistered transitions do nothing.");
 });
 
 module("History");
