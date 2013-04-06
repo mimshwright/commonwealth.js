@@ -18,3 +18,26 @@ Most names involving "states" or "state machines" were taken. Four of the states
 
 - [JSDoc](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/docs/index.html)
 - [Examples](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/examples/index.html)
+
+## Roadmap
+
+### Current Version
+0.4 (still under active development, not quite ready for prime time)
+
+### To Do:
+- ~~Check for infinite loops~~
+- Instructions for use
+- Change name from stateful to something else (state?)
+- Json parsing,  creating everything in one line
+- Concurrent states
+- Default states, reset on enter
+- OnSuspend and onwakeup
+- Functions to explicitly add on enter, exit. Additional params for addStateMethod
+- Events dispatched when changing states
+- Some way to tie into a view?
+- Clear function
+- Chaining methods ala jquery
+- Traffic light demo
+- Appliance Demo
+- Game demo
+- Form demo (idle, invalid, valid, submitting, confirmed)
