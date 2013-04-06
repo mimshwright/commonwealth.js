@@ -13,3 +13,8 @@ An implementation of [hierarchical state machines](http://bears.ece.ucsb.edu/cla
 ## Why Commonwealth?
 
 Most names involving "states" or "state machines" were taken. Four of the states of the United States officially use the term "commonwealth" rather than "state."
+
+## Documentation
+
+- [JSDoc](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/docs/index.html)
+- [Examples](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/examples/index.html)
