@@ -20,6 +20,11 @@ commonwealth.ARGUMENT_ERROR = {message: "A required argument is missing."};
 commonwealth.INVALID_STATE_ID_ERROR = {message: "The name of a state cannot be ''"};
 
 /**
+ * An error thrown when a circular reference.
+ */
+commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a circular reference because it's already part of the state chain."};
+
+/**
  * Stateful is the main class in commonwealth. It represents an
  * object that is both a stateful (having states) and a state.
  * It is a composite state object.
@@ -104,6 +109,10 @@ commonwealth.Stateful = function (name) {
                     oldState.exit();
                 }
                 oldState._parentState = null;
+            }
+
+            if (this.stateChainToArray().indexOf(newState) >= 0) {
+                throw INFINITE_LOOP_ERROR;
             }
 
             currentState = newState;

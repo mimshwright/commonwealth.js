@@ -42,6 +42,12 @@ test ("currentState() method", function () {
 	equal (testState, stateful.currentState("test"), "You can use the name of a state instead of the state object to set the state");
 	raises (function () { stateful.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
 	equal (stateful.setCurrentState("test"), stateful.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
+
+	// prevent infinite loops
+	raises (function () {
+		var parent = new c.Stateful("parent");
+		parent.addCurrentState("child").setCurrentState(parent);
+	}, "Adding a state that is already in the chain is prohibited because it causes infinite loops.");
 });
 
 test ("addCurrentState() method", function () {
