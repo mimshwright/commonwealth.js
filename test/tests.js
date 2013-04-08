@@ -350,6 +350,60 @@ test ("Transitions", function () {
 	equal (parent.currentState(), daughter, "Unregistered transitions do nothing.");
 });
 
+module ("JSON");
+
+test ("jsonUtil", function () {
+	ok (commonwealth.utils.jsonUtil, "jsonUtils defined.");
+});
+
+test ("Creating new states with JSON", function () {
+	var result;
+	var stateful = new c.Stateful({
+		name: "dad",
+		states: {
+			"son": {
+				name: "son",
+				enter: function () {
+					result = "son entered";
+				},
+				exit: function () {
+					result = "son exited";
+				},
+				methods: {
+					greet: function () {
+						return "billy";
+					}
+				}
+			},
+			"daughter" : {
+				name: "daughter",
+
+				methods: {
+					greet: function () {
+						return "sally";
+					}
+				}
+			}
+		},
+		defaultState: "son",
+		methods: {
+			greet: function () {
+				return "dad";
+			}
+		}
+	});
+
+	equal(stateful.name, "dad", "Set name with json.");
+	equal(stateful.currentState().name, "son" , "Set defaultState with json.");
+	equal(result, "son entered" , "enter() function set with json.");
+	stateful.currentState("daughter");
+	equal(result, "son exited" , "enter() function set with json.");
+	equal(stateful.greet(), "sally", "Methods are defined with json. Also nesting works!");
+	raises (function () {
+		new c.Stateful({});
+	}, "States must define a valid name.");
+});
+
 module("History");
 
 test( "History functions", function () {

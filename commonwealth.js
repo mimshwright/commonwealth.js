@@ -35,10 +35,12 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
  * @constructor
  * @this {commonwealth.Stateful}
  *
- * @param [name] {string} The name (id) of this state.
+ * @param [name_or_JSON] {string} The name (id) of this state or a json object used to set properties of the state.
  */
-commonwealth.Stateful = function (name) {
-    var _ = commonwealth.utils;
+commonwealth.Stateful = function (name_or_JSON) {
+    var _ = commonwealth.utils,
+        jsonUtil = _.jsonUtil,
+        json;
 
     /**
      * An hash of states that have been registered as
@@ -59,7 +61,7 @@ commonwealth.Stateful = function (name) {
      * by reference.
      * @type {string}
      */
-    this.name = name;
+    this.name;
 
     /**
      * A reference to the history object for this Stateful.
@@ -73,6 +75,7 @@ commonwealth.Stateful = function (name) {
     var currentState = null;
     /** @private */
     this._parentState = null;
+
 
     /**
     * Returns the current state.
@@ -130,6 +133,21 @@ commonwealth.Stateful = function (name) {
         }
         return currentState;
     };
+
+
+
+    // check for optional parameters.
+    if (name_or_JSON) {
+        // parameter is the name of the object
+        if (_.isString(name_or_JSON)) {
+            this.name = name_or_JSON;
+        } else {
+            // parameter is json. parse json object.
+            json = name_or_JSON;
+
+            jsonUtil.parseState(this, json);
+        }
+    }
 };
 
 /**
@@ -462,6 +480,74 @@ commonwealth.utils = {
             }
         }
         return obj;
+    },
+
+    jsonUtil : {
+        parseName : function parseName(json) {
+            if (json && commonwealth.utils.isString(json.name)) {
+                return json.name;
+            } else {
+                throw commonwealth.INVALID_STATE_ID_ERROR;
+            }
+        },
+        parseDefaultState: function parseDefaultState(json) {
+            if (json && commonwealth.utils.isString(json.defaultState)) {
+                return json.defaultState;
+            }
+        },
+        parseEnterFunction: function parseEnterFunction(json) {
+            if (json && commonwealth.utils.isFunction(json.enter)) {
+                return json.enter;
+            }
+            return null;
+        },
+        parseExitFunction: function parseExitFunction(json) {
+            if (json && commonwealth.utils.isFunction(json.exit)) {
+                return json.exit;
+            }
+            return null;
+        },
+        parseMethods: function parseMethods(json) {
+            var methods = {};
+            if (json && json.methods) {
+                for (var name in json.methods) {
+                    var method = json.methods[name];
+                    methods[name] = method;
+                }
+                return methods;
+            }
+            return null;
+        },
+        parseStates: function parseStates(json) {
+            var states = {};
+            if (json && json.states) {
+                for (var name in json.states) {
+                    var stateJSON = json.states[name];
+                    states[name] = new commonwealth.Stateful();
+                    this.parseState(states[name], stateJSON);
+                }
+                return states;
+            }
+            return null;
+        },
+        parseState: function parseState(state, json) {
+            var name, methods, method, states, substate;
+
+            state.name = this.parseName(json);
+            state.enter = this.parseEnterFunction(json);
+            state.exit = this.parseExitFunction(json);
+            methods = this.parseMethods (json);
+            for (name in methods) {
+                method = methods[name];
+                state.addStateMethod(name, method);
+            }
+            states = this.parseStates(json);
+            for (name in states) {
+                substate = states[name];
+                state.addSubstate(substate);
+            }
+            state.setCurrentState(this.parseDefaultState(json));
+        }
     }
 };
 
