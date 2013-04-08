@@ -17,7 +17,7 @@ Most names involving "states" or "state machines" were taken. Four of the states
 ## Documentation
 
 - [JSDoc](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/docs/index.html)
-- [Examples](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/examples/index.html)
+- [Examples](https://github.com/mimshwright/commonwealth.js/blob/master/examples/index.html)
 
 ## Roadmap
 
@@ -30,6 +30,7 @@ Most names involving "states" or "state machines" were taken. Four of the states
 - Change name from stateful to something else (state?)
 - Json parsing,  creating everything in one line
 - Concurrent states
+- Timer States
 - Default states, reset on enter
 - OnSuspend and onwakeup
 - Functions to explicitly add on enter, exit. Additional params for addStateMethod
