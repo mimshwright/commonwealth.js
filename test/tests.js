@@ -396,6 +396,7 @@ test ("Creating new states with JSON", function () {
 	});
 
 	equal(stateful.name, "dad", "Set name with json.");
+	ok(stateful.states["son"] && stateful.states["daughter"], "Substates are registered on the parent.");
 	equal(stateful.currentState().name, "son" , "Set defaultState with json.");
 	equal(result, "son entered" , "enter() function set with json.");
 	stateful.currentState("daughter");
