@@ -42,6 +42,10 @@ commonwealth.Stateful = function (name_or_JSON) {
         jsonUtil = _.jsonUtil,
         json;
 
+    if ( !(this instanceof arguments.callee) ) {
+        return new commonwealth.Stateful(name_or_JSON);
+    }
+
     /**
      * An hash of states that have been registered as
      * substates.

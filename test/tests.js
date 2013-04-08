@@ -13,6 +13,8 @@ module("Creating and setting States");
 test ("Stateful constructor", function () {
 	var stateful = new c.Stateful ("test");
 	ok (stateful, "Constructor works");
+	var stateful = c.Stateful("test");
+	ok (stateful, "Forgetting to use new still works.");
 	equal (stateful.name, "test", "Name property can be set by constructor.");
 });
 
