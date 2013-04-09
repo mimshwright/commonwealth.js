@@ -25,7 +25,7 @@
 	<script src="http://code.jquery.com/qunit/qunit-1.11.0.js"></script>
 	<script src="../commonwealth.js" type="text/javascript"></script>
 	<script>
-		var buttonController = new commonwealth.Stateful();
+		var buttonController = new commonwealth.State();
 		buttonController.view = document.getElementById("btn");
 		buttonController.addStateMethod(
 			function setLabel (labelText){
