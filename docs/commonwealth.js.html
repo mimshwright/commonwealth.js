@@ -53,17 +53,17 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
 
 
 /**
- * Stateful is the main class in commonwealth. It represents an
- * object that is both a stateful (having states) and a state.
+ * State is the main class in commonwealth. It represents an
+ * object that is both a state container and a state.
  * It is a composite state object.
  * For example, this may represent the backend for a login button
  * that contains two states, loggedIn and loggedOut which are also
- * both instances of Stateful.
+ * both instances of State.
  *
  * About JSON format:
  *
  * A json object can be passed into the constructor to create the
- * intial values for your stateful object. The format looks like this:
+ * intial values for your state object. The format looks like this:
  * &lt;pre>
 {
     name: "string", // only required field
@@ -79,17 +79,17 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
  *
  * @constructor
  * @class
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
  * @param [name_or_JSON] {string|object} The name (id) of this state or a json object used to set properties of the state.
  */
-commonwealth.Stateful = function (name_or_JSON) {
+commonwealth.State = function (name_or_JSON) {
     var _ = commonwealth.utils,
         jsonUtil = _.jsonUtil,
         json;
 
     if ( !(this instanceof arguments.callee) ) {
-        return new commonwealth.Stateful(name_or_JSON);
+        return new commonwealth.State(name_or_JSON);
     }
 
     /**
@@ -114,9 +114,9 @@ commonwealth.Stateful = function (name_or_JSON) {
     this.name;
 
     /**
-     * A reference to the history object for this Stateful.
+     * A reference to the history object for this State.
      * The history object records the history of the different states
-     * set on the Stateful object.
+     * set on the State object.
      * @type {commonwealth.History}
      */
     this.history = new commonwealth.History(this);
@@ -130,7 +130,7 @@ commonwealth.Stateful = function (name_or_JSON) {
     /**
     * Returns the current state.
     *
-    * @return {commonwealth.Stateful}
+    * @return {commonwealth.State}
     */
     this.getCurrentState = function getCurrentState () {
         return currentState;
@@ -140,11 +140,11 @@ commonwealth.Stateful = function (name_or_JSON) {
     * Sets the current state and calls the appropriate
     * methods to enter and exit the state.
     *
-    * @this {commonwealth.Stateful}
+    * @this {commonwealth.State}
     *
-    * @param newState {(string|commonwealth.Stateful)}
+    * @param newState {(string|commonwealth.State)}
     *        The new current state or it's name only.
-    * @return {commonwealth.Stateful} Returns the currentState just set.
+    * @return {commonwealth.State} Returns the currentState just set.
     */
     this.setCurrentState = function setCurrentState (newState) {
         var oldState = currentState;
@@ -201,31 +201,31 @@ commonwealth.Stateful = function (name_or_JSON) {
 };
 
 /**
- * Uses a json object to set properties on a stateful object.
+ * Uses a json object to set properties on a state object.
  * Normally this is used automatically by passing a json object to the
  * constructor. It can be used after an object has been instantiated
  * but keep in mind that values may get overridden.
  *
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
  * @param json {object} See constructor for full documentation.
  */
-commonwealth.Stateful.prototype.initWithJSON = function initWithJSON(json) {
+commonwealth.State.prototype.initWithJSON = function initWithJSON(json) {
     return commonwealth.utils.jsonUtil.parseState(this, json);
 };
 
 /**
  * Combination getter/setter for currentState using the JQuery style.
  *
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
- * @param [state] {string|commonwealth.Stateful} If supplied, the
- *        currentState is set to this value. If the value is a stateful
+ * @param [state] {string|commonwealth.State} If supplied, the
+ *        currentState is set to this value. If the value is a state
  *        object, that object is used. If the value is a string, the
  *        string is interpreted as a state name.
- * @return {commonwealth.Stateful} The current state or null.
+ * @return {commonwealth.State} The current state or null.
  */
-commonwealth.Stateful.prototype.currentState = function currentState (state) {
+commonwealth.State.prototype.currentState = function currentState (state) {
     if (state) {
         return this.setCurrentState(state);
     } else {
@@ -237,11 +237,11 @@ commonwealth.Stateful.prototype.currentState = function currentState (state) {
  * Gets the most distant ancestor of this state which is not null
  * or returns `this`.
  *
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
- * @return {commonwealth.Stateful}
+ * @return {commonwealth.State}
  */
-commonwealth.Stateful.prototype.finalCurrentState = function finalCurrentState() {
+commonwealth.State.prototype.finalCurrentState = function finalCurrentState() {
     // TODO: rename this
     var currentState = this.getCurrentState();
     if (currentState === null) {
@@ -251,29 +251,29 @@ commonwealth.Stateful.prototype.finalCurrentState = function finalCurrentState()
 };
 
 /**
- * Gets a substate of a stateful object based on the name property of that state.
+ * Gets a substate of a state object based on the name property of that state.
  *
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
- * @return {commonwealth.Stateful}
+ * @return {commonwealth.State}
  */
-commonwealth.Stateful.prototype.getStateByName = function getStateByName (name) {
+commonwealth.State.prototype.getStateByName = function getStateByName (name) {
     return this.states[name];
 };
 
 /**
- * Registers a state as a substate of the Stateful object.
+ * Registers a state as a substate of the State object.
  * If one doesn't exist, it automatically creates it and assigns it
  * the name parameter.
  *
  * @throws Argument Error if there is no state_or_name argument.
  * @throws Invalid State ID Error if the name of the state provided is bogus.
  *
- * @param state_or_name {(commonwealth.Stateful|string)} The state to register or the name of a state to create.
- * @return {commonwealth.Stateful} A reference to the state object
+ * @param state_or_name {(commonwealth.State|string)} The state to register or the name of a state to create.
+ * @return {commonwealth.State} A reference to the state object
  *         that was passed in or created.
  */
-commonwealth.Stateful.prototype.addSubstate = function addSubstate (state_or_name) {
+commonwealth.State.prototype.addSubstate = function addSubstate (state_or_name) {
     var name, state;
 
     // If state is null or undefined, assign an auto-incremented name.
@@ -284,7 +284,7 @@ commonwealth.Stateful.prototype.addSubstate = function addSubstate (state_or_nam
     // If state is a string, use it as the name of a new substate.
     if (commonwealth.utils.isString(state_or_name)) {
         name = state_or_name;
-        state = new commonwealth.Stateful(name);
+        state = new commonwealth.State(name);
     }
 
     // Otherwise, assume it's a state object.
@@ -303,14 +303,14 @@ commonwealth.Stateful.prototype.addSubstate = function addSubstate (state_or_nam
 /**
  * Adds a substate and sets it as the current state in one fell swoop!
  *
- * @see commonwealth.Stateful#addSubstate
- * @see commonwealth.Stateful#setCurrentState
+ * @see commonwealth.State#addSubstate
+ * @see commonwealth.State#setCurrentState
  *
- * @this {commonwealth.Stateful}
- * @param state {!(commonwealth.Stateful|string)} See addSubstate();
- * @return {commonwealth.Stateful} The current state.
+ * @this {commonwealth.State}
+ * @param state {!(commonwealth.State|string)} See addSubstate();
+ * @return {commonwealth.State} The current state.
  */
-commonwealth.Stateful.prototype.addCurrentState = function addCurrentState (state) {
+commonwealth.State.prototype.addCurrentState = function addCurrentState (state) {
     state = this.addSubstate(state);
     this.setCurrentState(state);
     return state;
@@ -321,13 +321,13 @@ commonwealth.Stateful.prototype.addCurrentState = function addCurrentState (stat
  * setCurrentState() on state B, B.parentState() points to A.
  * If there is no parent state, returns null.
  *
- * @this {commonwealth.Stateful}
- * @return {?commonwealth.Stateful} The parent state of this or null.
+ * @this {commonwealth.State}
+ * @return {?commonwealth.State} The parent state of this or null.
  */
-commonwealth.Stateful.prototype.parentState = function parentState () {
+commonwealth.State.prototype.parentState = function parentState () {
     return this._parentState;
 };
-commonwealth.Stateful.prototype.rootState = function rootState () {
+commonwealth.State.prototype.rootState = function rootState () {
     var parentState = this.parentState();
     if (parentState === null) {
         return this;
@@ -336,7 +336,7 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
 };
 
 /**
- * Registers a method to be handled by the stateful object's current
+ * Registers a method to be handled by the state object's current
  * state. When the method is called, the currentState() is checked to see
  * if it has an implementation of the method. This check cascades up the chain
  * to all subclass ancestors until the first one with the method defined is found.
@@ -348,7 +348,7 @@ commonwealth.Stateful.prototype.rootState = function rootState () {
  * @param methodName_or_defaultFunction The name of the function to register, or a defaultFunction with a name.
  * @param [defaultFunction] A function to be called as the default if there is nothing defined in the substate.
  */
-commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (methodName_or_defaultFunction, defaultFunction) {
+commonwealth.State.prototype.addStateMethod = function addStateMethod (methodName_or_defaultFunction, defaultFunction) {
     var methodName,
         _ = commonwealth.utils;
 
@@ -423,11 +423,11 @@ commonwealth.Stateful.prototype.addStateMethod = function addStateMethod (method
 /**
  * Dispatches a message to all of the children in the state chain.
  *
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
  * @param message {string} A message that is broadcast.
  */
-commonwealth.Stateful.prototype.dispatch = function (message) {
+commonwealth.State.prototype.dispatch = function (message) {
     var handler = this.handlers[message],
         current;
 
@@ -445,13 +445,13 @@ commonwealth.Stateful.prototype.dispatch = function (message) {
  * Registers a function that is called when a message is dispatched
  * using dispatch().
  *
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
  * @param message {string} The message to respond to.
  * @param handler {function} The function to call when the message is 
  *                           dispatched.
  */
-commonwealth.Stateful.prototype.on = function on (message, handler) {
+commonwealth.State.prototype.on = function on (message, handler) {
     this.handlers[message] = handler;
 };
 
@@ -467,14 +467,14 @@ commonwealth.Stateful.prototype.on = function on (message, handler) {
  * with the state they should change to when the transition event is
  * dispatched. "*" can be used to match any state.
  *
- * @this {commonwealth.Stateful}
+ * @this {commonwealth.State}
  *
  * @param transition {string} The name of the transition to register.
  * @param map {object} An object with mappings of states to transition
  *                     to and from.
  * @return The method created for transitioning.
  */
-commonwealth.Stateful.prototype.addTransition = function (transition, map) {
+commonwealth.State.prototype.addTransition = function (transition, map) {
     var stateChangeFunc = function (transition) {
         var state,
             key;
@@ -500,17 +500,17 @@ commonwealth.Stateful.prototype.addTransition = function (transition, map) {
  *
  * @returns {string}
  */
-commonwealth.Stateful.prototype.toString = function toString () {
-    return "[object commonwealth.Stateful]";
+commonwealth.State.prototype.toString = function toString () {
+    return "[object commonwealth.State]";
 };
 
 /**
- * Returns an array of Stateful objects for the given object starting
+ * Returns an array of State objects for the given object starting
  * with the object's root state and extending to the finalCurrentState.
  *
  * @returns {array}
  */
-commonwealth.Stateful.prototype.stateChainToArray = function stateChainToArray () {
+commonwealth.State.prototype.stateChainToArray = function stateChainToArray () {
     var state = this.rootState(),
         array = [];
 
@@ -608,7 +608,7 @@ commonwealth.utils = {
             if (json && json.states) {
                 for (var name in json.states) {
                     stateJSON = json.states[name];
-                    substate = new commonwealth.Stateful(stateJSON);
+                    substate = new commonwealth.State(stateJSON);
                     state.addSubstate(substate);
                 }
             }
@@ -639,28 +639,28 @@ commonwealth.utils = {
 ////////// HISTORY ////////////
 
 /**
- * Stateful history object.
- * Responsible for recording references to the past states of a stateful
+ * State history object.
+ * Responsible for recording references to the past states of a state
  * object.
  *
  * @constructor
  *
  * @this {commonwealth.History}
  *
- * @param stateful {commonwealth.Stateful} A reference to the stateful object that this history represents.
+ * @param state {commonwealth.State} A reference to the state object that this history represents.
  */
-commonwealth.History = function History (stateful) {
+commonwealth.History = function History (state) {
 
     /**
-     * Returns a reference to the stateful for which the history is recorded.
-     * @returns {commonwealth.Stateful}
+     * Returns a reference to the state for which the history is recorded.
+     * @returns {commonwealth.State}
      */
-    this.getStateful = function getStateful () {
-        return stateful;
+    this.getState = function getState () {
+        return state;
     };
 
     /**
-     * An array representing the history of current states in a Stateful object.
+     * An array representing the history of current states in a State object.
      * @type {array}
      */
     this.states = null;
@@ -671,7 +671,7 @@ commonwealth.History = function History (stateful) {
 
 /**
  * The previous state in the history.
- * @returns {commonwealth.Stateful}
+ * @returns {commonwealth.State}
  */
 commonwealth.History.prototype.getPreviousState = function getPreviousState() {
     return this.states[this.states.length - 1];
@@ -700,14 +700,14 @@ commonwealth.History.prototype.getLength = function getLength () {
  *
  * @this {commonwealth.History}
  *
- * @param state {commonwealth.Stateful} The state to add.
+ * @param state {commonwealth.State} The state to add.
  */
 commonwealth.History.prototype.addState = function addState (state) {
     this.states.push(state);
 };
 
 /**
- * Rolls back the state changes. Changes the current state of the stateful
+ * Rolls back the state changes. Changes the current state of the state
  * object by the specified number of steps.
  *
  * @this {commonwealth.History}
@@ -715,17 +715,17 @@ commonwealth.History.prototype.addState = function addState (state) {
  * @param [steps=1] {number} The number of steps to go back. Default is 1.
  */
 commonwealth.History.prototype.rewind = function rewind (steps) {
-    var state, stateful;
+    var substate, state;
 
     steps = steps || 1;
     steps = Math.min(Math.max(1, steps), this.states.length);
 
     if (this.states.length > 1) {
-        stateful = this.getStateful();
+        state = this.getState();
         while (steps-- > 0) {
-            state = this.states.pop();
+            substate = this.states.pop();
         }
-        stateful.setCurrentState(state);
+        state.setCurrentState(substate);
         // remove the state which was added back on when
         // setCurrentState() was called.
         this.states.pop();
@@ -749,13 +749,13 @@ commonwealth.History.prototype.toString = function toString () {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="commonwealth.History.html">History</a></li><li><a href="commonwealth.Stateful.html">Stateful</a></li></ul><h3>Namespaces</h3><ul><li><a href="commonwealth.html">commonwealth</a></li><li><a href="commonwealth.utils.html">utils</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="commonwealth.History.html">History</a></li><li><a href="commonwealth.State.html">State</a></li></ul><h3>Namespaces</h3><ul><li><a href="commonwealth.html">commonwealth</a></li><li><a href="commonwealth.utils.html">utils</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 08 2013 18:37:41 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 08 2013 22:51:27 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

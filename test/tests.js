@@ -10,72 +10,72 @@ test ("Commonwealth utils", function () {
 
 module("Creating and setting States");
 
-test ("Stateful constructor", function () {
-	var stateful = new c.Stateful ("test");
-	ok (stateful, "Constructor works");
-	var stateful = c.Stateful("test");
-	ok (stateful, "Forgetting to use new still works.");
-	equal (stateful.name, "test", "Name property can be set by constructor.");
+test ("State constructor", function () {
+	var state = new c.State ("test");
+	ok (state, "Constructor works");
+	var state = c.State("test");
+	ok (state, "Forgetting to use new still works.");
+	equal (state.name, "test", "Name property can be set by constructor.");
 });
 
 test ("addSubstate() method", function () {
-	var stateful  = new c.Stateful();
+	var state  = new c.State();
 
 	// create a new state with the name existing.
-	var existingState = new c.Stateful("existing");
-	stateful.addSubstate(existingState);
-	equal(existingState, stateful.states.existing, "addSubstate() adds an existing state object and returns a reference to it.");
+	var existingState = new c.State("existing");
+	state.addSubstate(existingState);
+	equal(existingState, state.states.existing, "addSubstate() adds an existing state object and returns a reference to it.");
 
-	var newStateFromString = stateful.addSubstate("fromString");
-	equal(newStateFromString, stateful.states.fromString, "addSubstate(string) creates a state object, adds it, and returns a reference to it.");
+	var newStateFromString = state.addSubstate("fromString");
+	equal(newStateFromString, state.states.fromString, "addSubstate(string) creates a state object, adds it, and returns a reference to it.");
 
-	raises(function () { var noName = stateful.addSubstate();}, "You must provide an argument or you get an error.");
+	raises(function () { var noName = state.addSubstate();}, "You must provide an argument or you get an error.");
 });
 
 test ("currentState() method", function () {
-	var stateful  = new c.Stateful();
-	var testState = stateful.addSubstate({
+	var state  = new c.State();
+	var testState = state.addSubstate({
 		name: "test"
 	});
 
-	equal (null, stateful.currentState(), "By default, currentState() returns null.");
-	stateful.currentState(testState);
-	equal (testState, stateful.currentState(), "currentState(state) sets the current state while currentState() (no parameter) gets it.");
-	equal (testState, stateful.currentState("test"), "You can use the name of a state instead of the state object to set the state");
-	raises (function () { stateful.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
-	equal (stateful.setCurrentState("test"), stateful.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
+	equal (null, state.currentState(), "By default, currentState() returns null.");
+	state.currentState(testState);
+	equal (testState, state.currentState(), "currentState(state) sets the current state while currentState() (no parameter) gets it.");
+	equal (testState, state.currentState("test"), "You can use the name of a state instead of the state object to set the state");
+	raises (function () { state.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
+	equal (state.setCurrentState("test"), state.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
 
 	// prevent infinite loops
 	raises (function () {
-		var parent = new c.Stateful("parent");
+		var parent = new c.State("parent");
 		parent.addCurrentState("child").setCurrentState(parent);
 	}, "Adding a state that is already in the chain is prohibited because it causes infinite loops.");
 });
 
 test ("addCurrentState() method", function () {
-	var stateful  = new c.Stateful();
-	var testState = stateful.addCurrentState("test");
+	var state  = new c.State();
+	var testState = state.addCurrentState("test");
 
 	equal (testState.name, "test", "addCurrentState() creates a new state the same way as addSubstate().");
-	equal (stateful.getCurrentState(), testState, "It also sets the currentState to the new state you created.");
+	equal (state.getCurrentState(), testState, "It also sets the currentState to the new state you created.");
 });
 
 test ("getStateByName() method", function () {
-	var stateful  = new c.Stateful();
-	var testState = stateful.addSubstate({
+	var state  = new c.State();
+	var testState = state.addSubstate({
 		name: "test"
 	});
 
-	equal (testState, stateful.getStateByName("test"), "getStateByName() returns the state object if it exists.");
-	equal (null, stateful.getStateByName("bogus"), "It returns the null if it doesn't exist.");
+	equal (testState, state.getStateByName("test"), "getStateByName() returns the state object if it exists.");
+	equal (null, state.getStateByName("bogus"), "It returns the null if it doesn't exist.");
 });
 
 module('State methods');
 
 test ("addStateMethod()", function () {
-	var mathStateful = new c.Stateful();
-	var identityState = new c.Stateful();
-	var doubleState = new c.Stateful();
+	var mathState = new c.State();
+	var identityState = new c.State();
+	var doubleState = new c.State();
 
 	identityState.process = function (x) {
 		return x;
@@ -85,20 +85,20 @@ test ("addStateMethod()", function () {
 		return x*2;
 	};
 
-	mathStateful.addSubstate(identityState);
-	mathStateful.addSubstate(doubleState);
-	var process = mathStateful.addStateMethod ("process");
+	mathState.addSubstate(identityState);
+	mathState.addSubstate(doubleState);
+	var process = mathState.addStateMethod ("process");
 
-	equal(mathStateful.process(5), null, "By default, the result of a state method is null if there is no defualt function.");
-	mathStateful.currentState(identityState);
-	equal(5, mathStateful.process(5), "If the currentState implements a method called on the stateful host, control is diverted to the state.");
-	mathStateful.currentState(doubleState);
-	equal(10, mathStateful.process(5), "The return value of the substate function is returned.");
-	equal(process, mathStateful.process, "Return a reference to the function, just for kicks.");
+	equal(mathState.process(5), null, "By default, the result of a state method is null if there is no defualt function.");
+	mathState.currentState(identityState);
+	equal(5, mathState.process(5), "If the currentState implements a method called on the state host, control is diverted to the state.");
+	mathState.currentState(doubleState);
+	equal(10, mathState.process(5), "The return value of the substate function is returned.");
+	equal(process, mathState.process, "Return a reference to the function, just for kicks.");
 });
 
 test ("Default methods", function () {
-	var s = new c.Stateful();
+	var s = new c.State();
 	s.addStateMethod("getInfo");
 
 	var noInfoString = "No info found.";
@@ -140,7 +140,7 @@ test ("Default methods", function () {
 });
 
 test("before and after functions", function () {
-	var parent = new c.Stateful("parent");
+	var parent = new c.State("parent");
 	var child = parent.addSubstate("child");
 	parent.currentState(child);
 
@@ -164,36 +164,36 @@ test("before and after functions", function () {
 });
 
 test ("enter() and exit()", function () {
-	var stateful = new c.Stateful("root");
-	stateful.lastStateEntered = null;
-	stateful.lastStateExited = null;
+	var state = new c.State("root");
+	state.lastStateEntered = null;
+	state.lastStateExited = null;
 
-	var enterTestState = new c.Stateful("enter");
+	var enterTestState = new c.State("enter");
 	enterTestState.enter = function () {
 		this.rootState().lastStateEntered = this.name;
 	};
 
-	var exitTestState = new c.Stateful("exit");
+	var exitTestState = new c.State("exit");
 	exitTestState.exit = function () {
 		var r = this.rootState();
 		r.lastStateExited = this.name;
 	};
 
-	stateful.addSubstate(enterTestState);
-	stateful.addSubstate(exitTestState);
+	state.addSubstate(enterTestState);
+	state.addSubstate(exitTestState);
 
-	equal (stateful.lastStateEntered, null, "Before starting test, verify that lastStateEntered is null.");
-	equal (stateful.lastStateExited, null, "Before starting test, verify that lastStateExited is null.");
+	equal (state.lastStateEntered, null, "Before starting test, verify that lastStateEntered is null.");
+	equal (state.lastStateExited, null, "Before starting test, verify that lastStateExited is null.");
 
-	stateful.currentState("exit");
-	equal (stateful.lastStateEntered, null, "If the currentState doesn't implement a function called enter() or exit(), that function isn't called.");
-	stateful.currentState("enter");
-	equal (stateful.lastStateExited, exitTestState.name, "exit() is called automatically when the currentState is replaced by a new state.");
-	equal (stateful.lastStateEntered, enterTestState.name, "enter() is called automatically when a currentState is set.");
+	state.currentState("exit");
+	equal (state.lastStateEntered, null, "If the currentState doesn't implement a function called enter() or exit(), that function isn't called.");
+	state.currentState("enter");
+	equal (state.lastStateExited, exitTestState.name, "exit() is called automatically when the currentState is replaced by a new state.");
+	equal (state.lastStateEntered, enterTestState.name, "enter() is called automatically when a currentState is set.");
 });
 
 // test ("supportsMethod()", function () {
-// 	var parent = new Stateful();
+// 	var parent = new State();
 // 	var child = parent.addSubstate("child");
 
 // 	parent.addStateMethod("both");
@@ -209,10 +209,10 @@ test ("enter() and exit()", function () {
 
 module ("Nested States");
 
-test ("currentState(), finalCurrentState(), parentState() and rootState() in nested Stateful objects", function () {
-	var root = new c.Stateful("root");
-	var child = new c.Stateful("child");
-	var grandchild = new c.Stateful("grandchild");
+test ("currentState(), finalCurrentState(), parentState() and rootState() in nested State objects", function () {
+	var root = new c.State("root");
+	var child = new c.State("child");
+	var grandchild = new c.State("grandchild");
 
 	root.addSubstate(child);
 	child.addSubstate(grandchild);
@@ -220,20 +220,20 @@ test ("currentState(), finalCurrentState(), parentState() and rootState() in nes
 	root.currentState("child");
 	child.currentState("grandchild");
 
-	ok (root.currentState() == child && child.currentState() == grandchild, "Stateful objects can be nested.");
+	ok (root.currentState() == child && child.currentState() == grandchild, "State objects can be nested.");
 	equal (root.finalCurrentState(), grandchild, "finalCurrentState() gets the the most distant ancestor in the state chain.");
 
 	equal ( grandchild.parentState(), child, "parentState() points to the state's parent.");
 	equal ( grandchild.rootState(), root, "rootState() points to the root of the hierarchy.");
 	equal ( root.parentState(), null, "parentState() is equal to null if the state has no parents.");
-	equal ( root.rootState(), root, "rootState() is equal to the stateful if the stateful has no parents.");
+	equal ( root.rootState(), root, "rootState() is equal to the state if the state has no parents.");
 	equal ( child.rootState(), child.parentState(), "rootState() is equal to the parentState() if the child has only one parent.");
 });
 
 test ("Calling nested functions", function (){
-	var root = new c.Stateful("root");
-	var child = new c.Stateful("child");
-	var grandchild = new c.Stateful("grandchild");
+	var root = new c.State("root");
+	var child = new c.State("child");
+	var grandchild = new c.State("grandchild");
 
 	root.addSubstate(child);
 	child.addSubstate(grandchild);
@@ -258,13 +258,13 @@ test ("Calling nested functions", function (){
 
 module ("Conversion methods");
 test ("toString()", function () {
-	var stateful = new c.Stateful();
-	ok(stateful.toString().indexOf("Stateful") >= 0, "toString() produces " + stateful.toString());
+	var state = new c.State();
+	ok(state.toString().indexOf("State") >= 0, "toString() produces " + state.toString());
 });
 test ("stateChainToArray()", function () {
-	var root = new c.Stateful("root");
-	var child = new c.Stateful("child");
-	var grandchild = new c.Stateful("grandchild");
+	var root = new c.State("root");
+	var child = new c.State("child");
+	var grandchild = new c.State("grandchild");
 
 	root.addSubstate(child);
 	child.addSubstate(grandchild);
@@ -282,7 +282,7 @@ test ("stateChainToArray()", function () {
 module ("Dispatching messages");
 
 test ("Message handlers", function () {
-	var greeter = new c.Stateful("greeter");
+	var greeter = new c.State("greeter");
 	var en = greeter.addCurrentState("en");
 	var fr = greeter.addSubstate("fr");
 	var de = greeter.addSubstate("de");
@@ -323,7 +323,7 @@ test ("Message handlers", function () {
 });
 
 test ("Transitions", function () {
-	var parent = new c.Stateful("parent");
+	var parent = new c.State("parent");
 	var son = parent.addCurrentState("son");
 	var daughter = parent.addSubstate("daughter");
 	var stepDaughter = parent.addSubstate("stepDaughter");
@@ -360,7 +360,7 @@ test ("jsonUtil", function () {
 
 test ("Creating new states with JSON", function () {
 	var result;
-	var stateful = new c.Stateful({
+	var state = new c.State({
 		name: "dad",
 		states: {
 			"son": {
@@ -398,46 +398,46 @@ test ("Creating new states with JSON", function () {
 		}
 	});
 
-	equal(stateful.name, "dad", "Set name with json.");
-	ok(stateful.states["son"] && stateful.states["daughter"], "Substates are registered on the parent.");
-	equal(stateful.currentState().name, "son" , "Set defaultState with json.");
+	equal(state.name, "dad", "Set name with json.");
+	ok(state.states["son"] && state.states["daughter"], "Substates are registered on the parent.");
+	equal(state.currentState().name, "son" , "Set defaultState with json.");
 	equal(result, "son entered" , "enter() function set with json.");
-	stateful.currentState("daughter");
+	state.currentState("daughter");
 	equal(result, "son exited" , "enter() function set with json.");
-	equal(stateful.greet(), "sally", "Methods are defined with json. Also nesting works!");
+	equal(state.greet(), "sally", "Methods are defined with json. Also nesting works!");
 	raises (function () {
-		new c.Stateful({});
+		new c.State({});
 	}, "States must define a valid name.");
-	stateful.dispatch("changeGender");
-	equal(stateful.currentState().name, "son", "Transitions can be added through json.");
+	state.dispatch("changeGender");
+	equal(state.currentState().name, "son", "Transitions can be added through json.");
 });
 
 module("History");
 
 test( "History functions", function () {
-    var stateful = new c.Stateful(),
-        history = stateful.history,
+    var state = new c.State(),
+        history = state.history,
         previousState;
 
-    stateful.addSubstate("a");
-    stateful.addSubstate("b");
-    stateful.addSubstate("c");
-    stateful.addSubstate("d");
-    stateful.addSubstate("e");
+    state.addSubstate("a");
+    state.addSubstate("b");
+    state.addSubstate("c");
+    state.addSubstate("d");
+    state.addSubstate("e");
 
-    equal (stateful, history.getStateful(), "History has a reference to the stateful object.");
+    equal (state, history.getState(), "History has a reference to the state object.");
 
-    equal (0, history.states.length, "The history should be empty before a state is set on the stateful object.");
+    equal (0, history.states.length, "The history should be empty before a state is set on the state object.");
 
-    stateful.setCurrentState("a");
-    equal (null, history.previousState, "The history should be record it when a state is set on the stateful object. The first state in the history should be null if that was the first state of the stateful object.");
+    state.setCurrentState("a");
+    equal (null, history.previousState, "The history should be record it when a state is set on the state object. The first state in the history should be null if that was the first state of the state object.");
 
-    previousState = stateful.getCurrentState();
-    stateful.setCurrentState("b");
-    equal (history.getPreviousState().name, previousState.name, "getPreviousState() tracks the previous state of the stateful object.");
+    previousState = state.getCurrentState();
+    state.setCurrentState("b");
+    equal (history.getPreviousState().name, previousState.name, "getPreviousState() tracks the previous state of the state object.");
 
     var previousLength = history.states.length;
-    stateful.setCurrentState(stateful.getCurrentState());
+    state.setCurrentState(state.getCurrentState());
     equal (history.states.length, previousLength, "Setting the current state to the same state doesn't change the history.");
 
     equal(history.getLength(), history.states.length, "getLength() is a shortcut for getting the length of the array in the history object.");
@@ -445,17 +445,17 @@ test( "History functions", function () {
     var preRewindLength = history.getLength();
     history.rewind();
     var postRewindLength = history.getLength();
-    equal (stateful.getCurrentState().name, "a", "Calling rewind() goes to the previous state.");
+    equal (state.getCurrentState().name, "a", "Calling rewind() goes to the previous state.");
     equal (preRewindLength - postRewindLength, 1, "The length property changes when rewinding.");
 
-    stateful.currentState("b");
-    stateful.currentState("c");
-    stateful.currentState("d");
-    stateful.currentState("e");
+    state.currentState("b");
+    state.currentState("c");
+    state.currentState("d");
+    state.currentState("e");
     history.rewind(3);
-    equal (stateful.getCurrentState().name, "b", "Calling rewind(n) goes back n steps. rewind() is the same as rewind(1)");
+    equal (state.getCurrentState().name, "b", "Calling rewind(n) goes back n steps. rewind() is the same as rewind(1)");
     history.rewind(1000);
-    equal (stateful.history.getLength(), 0, "You can only go back at most a number of steps equal to the length of the history.");
+    equal (state.history.getLength(), 0, "You can only go back at most a number of steps equal to the length of the history.");
 
     history.clear();
     equal (history.states.length, 0, "Calling clear() clears the history.");

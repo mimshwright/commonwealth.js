@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Stateful</title>
+    <title>JSDoc: Class: State</title>
     
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Class: Stateful</h1>
+    <h1 class="page-title">Class: State</h1>
     
     
 
@@ -29,7 +29,7 @@
     <h2>
         <span class="ancestors"><a href="commonwealth.html">commonwealth</a>.</span>
     
-    Stateful
+    State
     </h2>
     
 </header>  
@@ -41,7 +41,7 @@
     
         
 <dt>
-    <h4 class="name" id="Stateful"><span class="type-signature"></span>new Stateful<span class="signature">(<span class="optional">name_or_JSON</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="State"><span class="type-signature"></span>new State<span class="signature">(<span class="optional">name_or_JSON</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -49,17 +49,17 @@
     
     
     <div class="description">
-        Stateful is the main class in commonwealth. It represents an
-object that is both a stateful (having states) and a state.
+        State is the main class in commonwealth. It represents an
+object that is both a state container and a state.
 It is a composite state object.
 For example, this may represent the backend for a login button
 that contains two states, loggedIn and loggedOut which are also
-both instances of Stateful.
+both instances of State.
 
 About JSON format:
 
 A json object can be passed into the constructor to create the
-intial values for your stateful object. The format looks like this:
+intial values for your state object. The format looks like this:
 <pre>
 {
     name: "string", // only required field
@@ -78,7 +78,7 @@ intial values for your stateful object. The format looks like this:
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -215,7 +215,7 @@ intial values for your stateful object. The format looks like this:
         <dl>
             
 <dt>
-    <h4 class="name" id="addCurrentState"><span class="type-signature"></span>addCurrentState<span class="signature">(state)</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    <h4 class="name" id="addCurrentState"><span class="type-signature"></span>addCurrentState<span class="signature">(state)</span><span class="type-signature"> &rarr; {<a href="commonwealth.State.html">commonwealth.State</a>}</span></h4>
     
     
 </dt>
@@ -231,7 +231,7 @@ intial values for your stateful object. The format looks like this:
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -266,7 +266,7 @@ intial values for your stateful object. The format looks like this:
             <td class="type">
             
                 
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 |
 
 <span class="param-type">string</span>
@@ -320,9 +320,9 @@ intial values for your stateful object. The format looks like this:
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="commonwealth.Stateful.html#addSubstate">commonwealth.Stateful#addSubstate</a></li>
+            <li><a href="commonwealth.State.html#addSubstate">commonwealth.State#addSubstate</a></li>
         
-            <li>commonwealth.Stateful#setCurrentState</li>
+            <li>commonwealth.State#setCurrentState</li>
         </ul>
     </dd>
     
@@ -355,7 +355,7 @@ intial values for your stateful object. The format looks like this:
 	</dt>
 	<dd>
 		
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 
 
 	</dd>
@@ -377,7 +377,7 @@ intial values for your stateful object. The format looks like this:
     
     
     <div class="description">
-        Registers a method to be handled by the stateful object's current
+        Registers a method to be handled by the state object's current
 state. When the method is called, the currentState() is checked to see
 if it has an implementation of the method. This check cascades up the chain
 to all subclass ancestors until the first one with the method defined is found.
@@ -526,7 +526,7 @@ is ultimately used).
         
             
 <dt>
-    <h4 class="name" id="addSubstate"><span class="type-signature"></span>addSubstate<span class="signature">(state_or_name)</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    <h4 class="name" id="addSubstate"><span class="type-signature"></span>addSubstate<span class="signature">(state_or_name)</span><span class="type-signature"> &rarr; {<a href="commonwealth.State.html">commonwealth.State</a>}</span></h4>
     
     
 </dt>
@@ -534,7 +534,7 @@ is ultimately used).
     
     
     <div class="description">
-        Registers a state as a substate of the Stateful object.
+        Registers a state as a substate of the State object.
 If one doesn't exist, it automatically creates it and assigns it
 the name parameter.
     </div>
@@ -576,7 +576,7 @@ the name parameter.
             <td class="type">
             
                 
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 |
 
 <span class="param-type">string</span>
@@ -675,7 +675,7 @@ the name parameter.
 	</dt>
 	<dd>
 		
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 
 
 	</dd>
@@ -714,7 +714,7 @@ dispatched. "*" can be used to match any state.
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -852,7 +852,7 @@ dispatched. "*" can be used to match any state.
         
             
 <dt>
-    <h4 class="name" id="currentState"><span class="type-signature"></span>currentState<span class="signature">(<span class="optional">state</span>)</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    <h4 class="name" id="currentState"><span class="type-signature"></span>currentState<span class="signature">(<span class="optional">state</span>)</span><span class="type-signature"> &rarr; {<a href="commonwealth.State.html">commonwealth.State</a>}</span></h4>
     
     
 </dt>
@@ -868,7 +868,7 @@ dispatched. "*" can be used to match any state.
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -908,7 +908,7 @@ dispatched. "*" can be used to match any state.
 <span class="param-type">string</span>
 |
 
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 
 
             
@@ -929,7 +929,7 @@ dispatched. "*" can be used to match any state.
             
             
             <td class="description last">If supplied, the
-       currentState is set to this value. If the value is a stateful
+       currentState is set to this value. If the value is a state
        object, that object is used. If the value is a string, the
        string is interpreted as a state name.</td>
         </tr>
@@ -998,7 +998,7 @@ dispatched. "*" can be used to match any state.
 	</dt>
 	<dd>
 		
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 
 
 	</dd>
@@ -1028,7 +1028,7 @@ dispatched. "*" can be used to match any state.
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -1132,7 +1132,7 @@ dispatched. "*" can be used to match any state.
         
             
 <dt>
-    <h4 class="name" id="finalCurrentState"><span class="type-signature"></span>finalCurrentState<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    <h4 class="name" id="finalCurrentState"><span class="type-signature"></span>finalCurrentState<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="commonwealth.State.html">commonwealth.State</a>}</span></h4>
     
     
 </dt>
@@ -1149,7 +1149,7 @@ or returns `this`.
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -1209,7 +1209,7 @@ or returns `this`.
 	</dt>
 	<dd>
 		
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 
 
 	</dd>
@@ -1223,7 +1223,7 @@ or returns `this`.
         
             
 <dt>
-    <h4 class="name" id="getStateByName"><span class="type-signature"></span>getStateByName<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    <h4 class="name" id="getStateByName"><span class="type-signature"></span>getStateByName<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="commonwealth.State.html">commonwealth.State</a>}</span></h4>
     
     
 </dt>
@@ -1231,7 +1231,7 @@ or returns `this`.
     
     
     <div class="description">
-        Gets a substate of a stateful object based on the name property of that state.
+        Gets a substate of a state object based on the name property of that state.
     </div>
     
 
@@ -1239,7 +1239,7 @@ or returns `this`.
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -1299,7 +1299,7 @@ or returns `this`.
 	</dt>
 	<dd>
 		
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 
 
 	</dd>
@@ -1321,7 +1321,7 @@ or returns `this`.
     
     
     <div class="description">
-        Uses a json object to set properties on a stateful object.
+        Uses a json object to set properties on a state object.
 Normally this is used automatically by passing a json object to the
 constructor. It can be used after an object has been instantiated
 but keep in mind that values may get overridden.
@@ -1332,7 +1332,7 @@ but keep in mind that values may get overridden.
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -1453,7 +1453,7 @@ using dispatch().
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -1581,7 +1581,7 @@ using dispatch().
         
             
 <dt>
-    <h4 class="name" id="parentState"><span class="type-signature"></span>parentState<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</span></h4>
+    <h4 class="name" id="parentState"><span class="type-signature"></span>parentState<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="commonwealth.State.html">commonwealth.State</a>}</span></h4>
     
     
 </dt>
@@ -1599,7 +1599,7 @@ If there is no parent state, returns null.
     
     
         <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
     
     
     
@@ -1663,7 +1663,7 @@ If there is no parent state, returns null.
 	</dt>
 	<dd>
 		
-<span class="param-type"><a href="commonwealth.Stateful.html">commonwealth.Stateful</a></span>
+<span class="param-type"><a href="commonwealth.State.html">commonwealth.State</a></span>
 
 
 	</dd>
@@ -1685,7 +1685,7 @@ If there is no parent state, returns null.
     
     
     <div class="description">
-        Returns an array of Stateful objects for the given object starting
+        Returns an array of State objects for the given object starting
 with the object's root state and extending to the finalCurrentState.
     </div>
     
@@ -1865,13 +1865,13 @@ with the object's root state and extending to the finalCurrentState.
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="commonwealth.History.html">History</a></li><li><a href="commonwealth.Stateful.html">Stateful</a></li></ul><h3>Namespaces</h3><ul><li><a href="commonwealth.html">commonwealth</a></li><li><a href="commonwealth.utils.html">utils</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="commonwealth.History.html">History</a></li><li><a href="commonwealth.State.html">State</a></li></ul><h3>Namespaces</h3><ul><li><a href="commonwealth.html">commonwealth</a></li><li><a href="commonwealth.utils.html">utils</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 08 2013 18:37:41 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 08 2013 22:51:27 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
