@@ -22,21 +22,20 @@ Most names involving "states" or "state machines" were taken. Four of the states
 ## Roadmap
 
 ### Current Version
-0.4 (still under active development, not quite ready for prime time)
+0.5 (still under active development, not quite ready for prime time)
 
 ### To Do:
 - ~~Check for infinite loops~~
 - Instructions for use
-- Change name from stateful to something else (state?)
-- Json parsing,  creating everything in one line
+- ~~Change name from stateful to something else (state?)~~
+- ~~Json parsing,  creating everything in one line~~
 - Concurrent states
 - Timer States
-- Default states, reset on enter
+- ~~Default states, reset on enter~~
 - OnSuspend and onwakeup
-- Functions to explicitly add on enter, exit. Additional params for addStateMethod
+- Functions to explicitly add on enter, exit, before and after. Additional params for addStateMethod
 - Events dispatched when changing states
 - Some way to tie into a view?
-- Clear function
 - Chaining methods ala jquery
 - Traffic light demo
 - Appliance Demo
