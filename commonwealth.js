@@ -453,6 +453,7 @@ commonwealth.State.prototype.addTransition = function (transition, map) {
             key;
 
         for (key in map) {
+            // TODO: what if state already existed?
             state = map[key];
             if (key === "*" || this.getStateByName(key) === this.getCurrentState()) {
                 this.setCurrentState(state);
