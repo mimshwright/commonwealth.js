@@ -257,6 +257,26 @@ test ("Calling nested functions", function (){
 	equal(root.skip(), grandchild, "More distant relatives will be checked for viable functions even if their parents haven't called addStateMethod() specifically. In other words, I can set up a function on the parent and the grandchild without doing anything to the child.");
 });
 
+test ("Resetting states on enter", function () {
+	var root = new c.State("root");
+	var child = root.addCurrentState("child");
+	var grandson = child.addCurrentState("grandson");
+	var granddaughter = child.addSubstate("granddaughter");
+
+	child.defaultState = "grandson";
+	child.resetOnEnter = true;
+
+	equal(child.currentState().name, "grandson", "Starts out as grandson");
+	child.currentState("granddaughter");
+	equal(child.currentState().name, "granddaughter", "Switch to granddaughter");
+	root.setCurrentState(null);
+	equal(root.currentState(), null, "child is no longer active");
+	root.currentState(child);
+	equal(child.currentState().name, "grandson", "Reverts to defaultState");
+
+
+});
+
 module ("Conversion methods");
 test ("toString()", function () {
 	var state = new c.State();

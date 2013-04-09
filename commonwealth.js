@@ -44,6 +44,7 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
                     // which follow the exact same syntax as this json object.
     defaultState: "stateName", // the name of a state to set as
                                // the default substate.
+    resetOnEnter: true, // true or false. Sets the resetOnEnter property.
     methods: {...}, // 1 or more methods to add using #addStateMethod()
     transitions: {...}  // 1 or more transitions using the same syntax as
                         // #addTransition()
@@ -84,7 +85,23 @@ commonwealth.State = function (name_or_JSON) {
      * by reference.
      * @type {string}
      */
-    this.name;
+    this.name = null;
+
+    /**
+     * Used in conjunction with resetOnEnter. The default substate
+     * of the state.
+     *
+     * @type {string|commonwealth.State}
+     */
+    this.defaultState = null;
+
+    /**
+     * If true, the state will revert to its defaultState
+     * when it is set as the currentState for a parent state.
+     *
+     * @type {boolean}
+     */
+    this.resetOnEnter = false;
 
     /**
      * A reference to the history object for this State.
@@ -142,6 +159,10 @@ commonwealth.State = function (name_or_JSON) {
             }
 
             currentState = newState;
+
+            if (newState.resetOnEnter) {
+                newState.setCurrentState(newState.defaultState);
+            }
 
             if (this.history) {
                 this.history.addState(oldState);
@@ -618,6 +639,8 @@ commonwealth.utils = {
                 state.addTransition(message, json.transitions[message]);
             }
             state.setCurrentState(this.parseDefaultState(json));
+            state.defaultState = state.getCurrentState();
+            state.resetOnEnter = json.resetOnEnter;
         }
     }
 };
