@@ -112,75 +112,9 @@ commonwealth.State = function (name_or_JSON) {
     this.history = new commonwealth.History(this);
 
     /** @private */
-    var currentState = null;
+    this._currentState = null;
     /** @private */
     this._parentState = null;
-
-
-    /**
-    * Returns the current state.
-    *
-    * @return {commonwealth.State}
-    */
-    this.getCurrentState = function getCurrentState () {
-        return currentState;
-    };
-
-    /**
-    * Sets the current state and calls the appropriate
-    * methods to enter and exit the state.
-    *
-    * @this {commonwealth.State}
-    *
-    * @param newState {(string|commonwealth.State)}
-    *        The new current state or it's name only.
-    * @return {commonwealth.State} Returns the currentState just set.
-    */
-    this.setCurrentState = function setCurrentState (newState) {
-        var oldState = currentState;
-
-        if (_.isString(newState)) {
-            newState = this.getStateByName(newState);
-            if (!newState) {
-                throw {message: "The state you're trying to set can't be found in the list of states for " + this + "."};
-            }
-        }
-
-        if ( newState != oldState) {
-            if (oldState) {
-                if (_.hasMethod(oldState, "exit")) {
-                    oldState.exit();
-                }
-                oldState._parentState = null;
-            }
-
-            if (this.stateChainToArray().indexOf(newState) >= 0) {
-                throw INFINITE_LOOP_ERROR;
-            }
-
-            currentState = newState;
-
-
-            if (this.history) {
-                this.history.addState(oldState);
-            }
-
-            if (newState) {
-                newState._parentState = this;
-
-                // reset the newState to default if desired.
-                if (newState.resetOnEnter) {
-                    newState.setCurrentState(newState.defaultState);
-                }
-                if (_.hasMethod(newState, "enter")) {
-                    newState.enter();
-                }
-            }
-        }
-        return currentState;
-    };
-
-
 
     // check for optional parameters.
     if (name_or_JSON) {
@@ -191,10 +125,11 @@ commonwealth.State = function (name_or_JSON) {
             // parameter is json. parse json object.
             json = name_or_JSON;
 
-            jsonUtil.parseState(this, json);
+            this.initWithJSON(json);
         }
     }
 };
+
 
 /**
  * Uses a json object to set properties on a state object.
@@ -203,12 +138,80 @@ commonwealth.State = function (name_or_JSON) {
  * but keep in mind that values may get overridden.
  *
  * @this {commonwealth.State}
- *
  * @param json {object} See constructor for full documentation.
  */
 commonwealth.State.prototype.initWithJSON = function initWithJSON(json) {
     return commonwealth.utils.jsonUtil.parseState(this, json);
 };
+
+
+/**
+ * Returns the current state.
+ *
+ * @this {commonwealth.State}
+ *
+ * @return {commonwealth.State}
+ */
+commonwealth.State.prototype.getCurrentState = function getCurrentState () {
+    return this._currentState;
+};
+
+/**
+* Sets the current state and calls the appropriate
+* methods to enter and exit the state.
+*
+* @this {commonwealth.State}
+*
+* @param newState {(string|commonwealth.State)}
+*        The new current state or it's name only.
+* @return {commonwealth.State} Returns the currentState just set.
+*/
+commonwealth.State.prototype.setCurrentState = function setCurrentState (newState) {
+    var oldState = this._currentState,
+        _ = commonwealth.utils;
+
+    if (_.isString(newState)) {
+        newState = this.getStateByName(newState);
+        if (!newState) {
+            throw {message: "The state you're trying to set can't be found in the list of states for " + this + "."};
+        }
+    }
+
+    if ( newState != oldState) {
+        if (oldState) {
+            if (_.hasMethod(oldState, "exit")) {
+                oldState.exit();
+            }
+            oldState._parentState = null;
+        }
+
+        if (this.stateChainToArray().indexOf(newState) >= 0) {
+            throw INFINITE_LOOP_ERROR;
+        }
+
+        this._currentState = newState;
+
+
+        if (this.history) {
+            this.history.addState(oldState);
+        }
+
+        if (newState) {
+            newState._parentState = this;
+
+            // reset the newState to default if desired.
+            if (newState.resetOnEnter) {
+                newState.setCurrentState(newState.defaultState);
+            }
+            if (_.hasMethod(newState, "enter")) {
+                newState.enter();
+            }
+        }
+    }
+    return this._currentState;
+};
+
+
 
 /**
  * Combination getter/setter for currentState using the JQuery style.
