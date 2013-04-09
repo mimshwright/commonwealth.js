@@ -160,9 +160,6 @@ commonwealth.State = function (name_or_JSON) {
 
             currentState = newState;
 
-            if (newState.resetOnEnter) {
-                newState.setCurrentState(newState.defaultState);
-            }
 
             if (this.history) {
                 this.history.addState(oldState);
@@ -170,6 +167,11 @@ commonwealth.State = function (name_or_JSON) {
 
             if (newState) {
                 newState._parentState = this;
+
+                // reset the newState to default if desired.
+                if (newState.resetOnEnter) {
+                    newState.setCurrentState(newState.defaultState);
+                }
                 if (_.hasMethod(newState, "enter")) {
                     newState.enter();
                 }
