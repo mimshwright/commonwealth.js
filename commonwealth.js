@@ -511,44 +511,40 @@ commonwealth.utils = {
             }
             return null;
         },
-        parseMethods: function parseMethods(json) {
-            var methods = {};
+        parseMethods: function parseMethods(state, json) {
+            var name, method;
             if (json && json.methods) {
-                for (var name in json.methods) {
-                    var method = json.methods[name];
-                    methods[name] = method;
+                for (name in json.methods) {
+                    method = json.methods[name];
+                    state.addStateMethod(name, method);
                 }
-                return methods;
             }
-            return null;
         },
-        parseStates: function parseStates(json) {
-            var states = {};
+        parseStates: function parseStates(state, json) {
+            var stateJSON, substate;
+
             if (json && json.states) {
                 for (var name in json.states) {
-                    var stateJSON = json.states[name];
-                    states[name] = new commonwealth.Stateful();
-                    this.parseState(states[name], stateJSON);
+                    stateJSON = json.states[name];
+                    substate = new commonwealth.Stateful(stateJSON);
+                    state.addSubstate(substate);
                 }
-                return states;
             }
-            return null;
         },
         parseState: function parseState(state, json) {
-            var name, methods, method, states, substate;
+            var name, methods, method, states, substate,
+                message;
 
             state.name = this.parseName(json);
             state.enter = this.parseEnterFunction(json);
             state.exit = this.parseExitFunction(json);
-            methods = this.parseMethods (json);
-            for (name in methods) {
-                method = methods[name];
-                state.addStateMethod(name, method);
-            }
-            states = this.parseStates(json);
-            for (name in states) {
-                substate = states[name];
-                state.addSubstate(substate);
+
+            // more complex recursive parsing.
+            this.parseMethods(state, json);
+            this.parseStates(state,json);
+
+            for (message in json.transitions) {
+                state.addTransition(message, json.transitions[message]);
             }
             state.setCurrentState(this.parseDefaultState(json));
         }

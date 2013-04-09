@@ -392,6 +392,9 @@ test ("Creating new states with JSON", function () {
 			greet: function () {
 				return "dad";
 			}
+		},
+		transitions: {
+			"changeGender" : {"son":"daughter", "daughter":"son"}
 		}
 	});
 
@@ -405,6 +408,8 @@ test ("Creating new states with JSON", function () {
 	raises (function () {
 		new c.Stateful({});
 	}, "States must define a valid name.");
+	stateful.dispatch("changeGender");
+	equal(stateful.currentState().name, "son", "Transitions can be added through json.");
 });
 
 module("History");
