@@ -71,6 +71,7 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
                     // which follow the exact same syntax as this json object.
     defaultState: "stateName", // the name of a state to set as
                                // the default substate.
+    resetOnEnter: true, // true or false. Sets the resetOnEnter property.
     methods: {...}, // 1 or more methods to add using #addStateMethod()
     transitions: {...}  // 1 or more transitions using the same syntax as
                         // #addTransition()
@@ -111,7 +112,23 @@ commonwealth.State = function (name_or_JSON) {
      * by reference.
      * @type {string}
      */
-    this.name;
+    this.name = null;
+
+    /**
+     * Used in conjunction with resetOnEnter. The default substate
+     * of the state.
+     *
+     * @type {string|commonwealth.State}
+     */
+    this.defaultState = null;
+
+    /**
+     * If true, the state will revert to its defaultState
+     * when it is set as the currentState for a parent state.
+     *
+     * @type {boolean}
+     */
+    this.resetOnEnter = false;
 
     /**
      * A reference to the history object for this State.
@@ -122,69 +139,9 @@ commonwealth.State = function (name_or_JSON) {
     this.history = new commonwealth.History(this);
 
     /** @private */
-    var currentState = null;
+    this._currentState = null;
     /** @private */
     this._parentState = null;
-
-
-    /**
-    * Returns the current state.
-    *
-    * @return {commonwealth.State}
-    */
-    this.getCurrentState = function getCurrentState () {
-        return currentState;
-    };
-
-    /**
-    * Sets the current state and calls the appropriate
-    * methods to enter and exit the state.
-    *
-    * @this {commonwealth.State}
-    *
-    * @param newState {(string|commonwealth.State)}
-    *        The new current state or it's name only.
-    * @return {commonwealth.State} Returns the currentState just set.
-    */
-    this.setCurrentState = function setCurrentState (newState) {
-        var oldState = currentState;
-
-        if (_.isString(newState)) {
-            newState = this.getStateByName(newState);
-            if (!newState) {
-                throw {message: "The state you're trying to set can't be found in the list of states for " + this + "."};
-            }
-        }
-
-        if ( newState != oldState) {
-            if (oldState) {
-                if (_.hasMethod(oldState, "exit")) {
-                    oldState.exit();
-                }
-                oldState._parentState = null;
-            }
-
-            if (this.stateChainToArray().indexOf(newState) >= 0) {
-                throw INFINITE_LOOP_ERROR;
-            }
-
-            currentState = newState;
-
-            if (this.history) {
-                this.history.addState(oldState);
-            }
-
-            if (newState) {
-                newState._parentState = this;
-                if (_.hasMethod(newState, "enter")) {
-                    newState.enter();
-                }
-            }
-        }
-        return currentState;
-    };
-
-
 
     // check for optional parameters.
     if (name_or_JSON) {
@@ -195,10 +152,11 @@ commonwealth.State = function (name_or_JSON) {
             // parameter is json. parse json object.
             json = name_or_JSON;
 
-            jsonUtil.parseState(this, json);
+            this.initWithJSON(json);
         }
     }
 };
+
 
 /**
  * Uses a json object to set properties on a state object.
@@ -207,12 +165,80 @@ commonwealth.State = function (name_or_JSON) {
  * but keep in mind that values may get overridden.
  *
  * @this {commonwealth.State}
- *
  * @param json {object} See constructor for full documentation.
  */
 commonwealth.State.prototype.initWithJSON = function initWithJSON(json) {
     return commonwealth.utils.jsonUtil.parseState(this, json);
 };
+
+
+/**
+ * Returns the current state.
+ *
+ * @this {commonwealth.State}
+ *
+ * @return {commonwealth.State}
+ */
+commonwealth.State.prototype.getCurrentState = function getCurrentState () {
+    return this._currentState;
+};
+
+/**
+* Sets the current state and calls the appropriate
+* methods to enter and exit the state.
+*
+* @this {commonwealth.State}
+*
+* @param newState {(string|commonwealth.State)}
+*        The new current state or it's name only.
+* @return {commonwealth.State} Returns the currentState just set.
+*/
+commonwealth.State.prototype.setCurrentState = function setCurrentState (newState) {
+    var oldState = this._currentState,
+        _ = commonwealth.utils;
+
+    if (_.isString(newState)) {
+        newState = this.getStateByName(newState);
+        if (!newState) {
+            throw {message: "The state you're trying to set can't be found in the list of states for " + this + "."};
+        }
+    }
+
+    if ( newState != oldState) {
+        if (oldState) {
+            if (_.hasMethod(oldState, "exit")) {
+                oldState.exit();
+            }
+            oldState._parentState = null;
+        }
+
+        if (this.stateChainToArray().indexOf(newState) >= 0) {
+            throw INFINITE_LOOP_ERROR;
+        }
+
+        this._currentState = newState;
+
+
+        if (this.history) {
+            this.history.addState(oldState);
+        }
+
+        if (newState) {
+            newState._parentState = this;
+
+            // reset the newState to default if desired.
+            if (newState.resetOnEnter) {
+                newState.setCurrentState(newState.defaultState);
+            }
+            if (_.hasMethod(newState, "enter")) {
+                newState.enter();
+            }
+        }
+    }
+    return this._currentState;
+};
+
+
 
 /**
  * Combination getter/setter for currentState using the JQuery style.
@@ -428,13 +454,18 @@ commonwealth.State.prototype.addStateMethod = function addStateMethod (methodNam
  * @param message {string} A message that is broadcast.
  */
 commonwealth.State.prototype.dispatch = function (message) {
-    var handler = this.handlers[message],
+    var handlers = this.handlers[message],
+        handler,
         current;
 
-    if (handler) {
-        handler.call(this, message);
+    for (var i in handlers) {
+        handler = handlers[i];
+        if (handler && commonwealth.utils.isFunction(handler)) {
+            handler.call(this, message);
+        }
     }
 
+    // Bubble events up to substates
     current = this.currentState();
     if (current) {
         current.dispatch(message);
@@ -442,17 +473,20 @@ commonwealth.State.prototype.dispatch = function (message) {
 };
 
 /**
- * Registers a function that is called when a message is dispatched
+ * Registers a function that is called when a signal is dispatched
  * using dispatch().
  *
  * @this {commonwealth.State}
  *
- * @param message {string} The message to respond to.
+ * @param signal {string} The message to respond to.
  * @param handler {function} The function to call when the message is 
  *                           dispatched.
  */
-commonwealth.State.prototype.on = function on (message, handler) {
-    this.handlers[message] = handler;
+commonwealth.State.prototype.on = function on (signal, handler) {
+    if (!this.handlers[signal]) {
+        this.handlers[signal] = [];
+    }
+    this.handlers[signal].push(handler);
 };
 
 /**
@@ -465,7 +499,9 @@ commonwealth.State.prototype.on = function on (message, handler) {
  *
  * The map of state changes is an object with names of states paired
  * with the state they should change to when the transition event is
- * dispatched. "*" can be used to match any state.
+ * dispatched. "*" can be used on the left side to match any state.
+ * `null` can be used to transition TO "no state" and the string "null"
+ * can be used to transition FROM the null state.
  *
  * @this {commonwealth.State}
  *
@@ -481,7 +517,10 @@ commonwealth.State.prototype.addTransition = function (transition, map) {
 
         for (key in map) {
             state = map[key];
-            if (key === "*" || this.getStateByName(key) === this.getCurrentState()) {
+            if (key === "*" || // if the key is *, transition from any state.
+                this.getStateByName(key) === this.getCurrentState() || // other wise states have to match.
+                key === "null" && !this.getCurrentState() // special case for null, use "null"
+                ) {
                 this.setCurrentState(state);
                 return;
             }
@@ -632,6 +671,8 @@ commonwealth.utils = {
                 state.addTransition(message, json.transitions[message]);
             }
             state.setCurrentState(this.parseDefaultState(json));
+            state.defaultState = state.getCurrentState();
+            state.resetOnEnter = json.resetOnEnter;
         }
     }
 };
@@ -755,7 +796,7 @@ commonwealth.History.prototype.toString = function toString () {
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 08 2013 22:51:27 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Tue Apr 09 2013 11:17:02 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
