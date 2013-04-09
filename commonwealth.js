@@ -401,13 +401,18 @@ commonwealth.State.prototype.addStateMethod = function addStateMethod (methodNam
  * @param message {string} A message that is broadcast.
  */
 commonwealth.State.prototype.dispatch = function (message) {
-    var handler = this.handlers[message],
+    var handlers = this.handlers[message],
+        handler,
         current;
 
-    if (handler) {
-        handler.call(this, message);
+    for (var i in handlers) {
+        handler = handlers[i];
+        if (handler && commonwealth.utils.isFunction(handler)) {
+            handler.call(this, message);
+        }
     }
 
+    // Bubble events up to substates
     current = this.currentState();
     if (current) {
         current.dispatch(message);
@@ -415,17 +420,20 @@ commonwealth.State.prototype.dispatch = function (message) {
 };
 
 /**
- * Registers a function that is called when a message is dispatched
+ * Registers a function that is called when a signal is dispatched
  * using dispatch().
  *
  * @this {commonwealth.State}
  *
- * @param message {string} The message to respond to.
+ * @param signal {string} The message to respond to.
  * @param handler {function} The function to call when the message is 
  *                           dispatched.
  */
-commonwealth.State.prototype.on = function on (message, handler) {
-    this.handlers[message] = handler;
+commonwealth.State.prototype.on = function on (signal, handler) {
+    if (!this.handlers[signal]) {
+        this.handlers[signal] = [];
+    }
+    this.handlers[signal].push(handler);
 };
 
 /**
@@ -438,7 +446,9 @@ commonwealth.State.prototype.on = function on (message, handler) {
  *
  * The map of state changes is an object with names of states paired
  * with the state they should change to when the transition event is
- * dispatched. "*" can be used to match any state.
+ * dispatched. "*" can be used on the left side to match any state.
+ * `null` can be used to transition TO "no state" and the string "null"
+ * can be used to transition FROM the null state.
  *
  * @this {commonwealth.State}
  *
@@ -453,9 +463,11 @@ commonwealth.State.prototype.addTransition = function (transition, map) {
             key;
 
         for (key in map) {
-            // TODO: what if state already existed?
             state = map[key];
-            if (key === "*" || this.getStateByName(key) === this.getCurrentState()) {
+            if (key === "*" || // if the key is *, transition from any state.
+                this.getStateByName(key) === this.getCurrentState() || // other wise states have to match.
+                key === "null" && !this.getCurrentState() // special case for null, use "null"
+                ) {
                 this.setCurrentState(state);
                 return;
             }

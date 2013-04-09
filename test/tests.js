@@ -68,6 +68,7 @@ test ("getStateByName() method", function () {
 
 	equal (testState, state.getStateByName("test"), "getStateByName() returns the state object if it exists.");
 	equal (null, state.getStateByName("bogus"), "It returns the null if it doesn't exist.");
+	equal (null, state.getStateByName(null), "It returns the null if name is null.");
 });
 
 module('State methods');
@@ -330,6 +331,7 @@ test ("Transitions", function () {
 
 	var changeGenderFunc = parent.addTransition("changeGender", {"son":"daughter", "daughter":"son"} );
 	parent.addTransition("firstSon", {"*":"son"});
+	parent.addTransition("sonNullNullSon", {"son":null, null:"son"});
 
 	son.addTransition("changeGrandchildGender", {"grandson": "granddaughter", "granddaughter": "grandson"});
 	son.addCurrentState("grandson");
@@ -343,6 +345,12 @@ test ("Transitions", function () {
 	parent.currentState(stepDaughter);
 	parent.dispatch("firstSon");
 	equal (parent.currentState(), son, "Wildcard transitions with *.");
+	parent.currentState(stepDaughter);
+	parent.addTransition("changeGender", {"stepDaughter":"son"});
+	parent.dispatch("changeGender"); // stepDaughter -> son
+	parent.dispatch("changeGender"); // son -> daughter
+	equal (parent.currentState().name, "daughter", "You can add transitions after one has been defined already and it won't affect the old ones (although one may overwrite the other if not careful).");
+	parent.currentState("son");
 	parent.dispatch("changeGrandchildGender");
 	equal (son.currentState().name, "granddaughter", "Works with nested states.");
 	parent.currentState("daughter");
@@ -350,6 +358,11 @@ test ("Transitions", function () {
 	equal (son.currentState().name, "granddaughter", "Nested states are only affected if they're in the current state chain.");
 	parent.dispatch("foo");
 	equal (parent.currentState(), daughter, "Unregistered transitions do nothing.");
+	parent.setCurrentState("son");
+	parent.dispatch("sonNullNullSon");
+	equal(parent.currentState(), null, "You can transition to null.");
+	parent.dispatch("sonNullNullSon");
+	equal(parent.currentState().name, "son", "You can transition from null.");
 });
 
 module ("JSON");
