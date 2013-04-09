@@ -69,21 +69,19 @@ commonwealth.State = function (name_or_JSON) {
     /**
      * An hash of states that have been registered as
      * substates.
-     * @type {object}
+     * @member states {object}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.states = {};
-
-     /**
-     * A hash of message handler maps.
-     * @type {object}
-     */
-     this.handlers = {};
 
     /**
      * A name (id) for the state. This name will be used
      * when referring to the state by a string rather than
      * by reference.
-     * @type {string}
+     * @member name {string}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.name = null;
 
@@ -91,7 +89,9 @@ commonwealth.State = function (name_or_JSON) {
      * Used in conjunction with resetOnEnter. The default substate
      * of the state.
      *
-     * @type {string|commonwealth.State}
+     * @member defaultState {string|commonwealth.State}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.defaultState = null;
 
@@ -99,7 +99,9 @@ commonwealth.State = function (name_or_JSON) {
      * If true, the state will revert to its defaultState
      * when it is set as the currentState for a parent state.
      *
-     * @type {boolean}
+     * @member resetOnEnter {boolean}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.resetOnEnter = false;
 
@@ -107,14 +109,28 @@ commonwealth.State = function (name_or_JSON) {
      * A reference to the history object for this State.
      * The history object records the history of the different states
      * set on the State object.
-     * @type {commonwealth.History}
+     *
+     * @member history {commonwealth.History}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.history = new commonwealth.History(this);
 
-    /** @private */
+     /**
+     * @private
+     */
     this._currentState = null;
-    /** @private */
+
+    /**
+     * @private
+     */
     this._parentState = null;
+
+    /**
+     * A hash of message handler maps.
+     * @private
+     */
+    this._handlers = {};
 
     // check for optional parameters.
     if (name_or_JSON) {
@@ -427,7 +443,7 @@ commonwealth.State.prototype.addStateMethod = function addStateMethod (methodNam
  * @param message {string} A message that is broadcast.
  */
 commonwealth.State.prototype.dispatch = function (message) {
-    var handlers = this.handlers[message],
+    var handlers = this._handlers[message],
         handler,
         current;
 
@@ -456,10 +472,10 @@ commonwealth.State.prototype.dispatch = function (message) {
  *                           dispatched.
  */
 commonwealth.State.prototype.on = function on (signal, handler) {
-    if (!this.handlers[signal]) {
-        this.handlers[signal] = [];
+    if (!this._handlers[signal]) {
+        this._handlers[signal] = [];
     }
-    this.handlers[signal].push(handler);
+    this._handlers[signal].push(handler);
 };
 
 /**
