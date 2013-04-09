@@ -35,7 +35,7 @@
 
 		// Listen for clicks.
 		buttonController.view.addEventListener("click", function () {
-			buttonController.onClick();
+			buttonController.dispatch("onClick");
 		});
 
 		var onState = buttonController.addSubstate("on");
