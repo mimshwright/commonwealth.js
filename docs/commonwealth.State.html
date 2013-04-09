@@ -209,6 +209,277 @@ intial values for your state object. The format looks like this:
     
     
     
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="defaultState"><span class="type-signature"></span>defaultState<span class="type-signature"> :string|<a href="commonwealth.State.html">commonwealth.State</a></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Used in conjunction with resetOnEnter. The default substate
+of the state.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 88
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="history"><span class="type-signature"></span>history<span class="type-signature"> :<a href="commonwealth.History.html">commonwealth.History</a></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        A reference to the history object for this State.
+The history object records the history of the different states
+set on the State object.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 108
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="name"><span class="type-signature"></span>name<span class="type-signature"> :string</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        A name (id) for the state. This name will be used
+when referring to the state by a string rather than
+by reference.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 78
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="resetOnEnter"><span class="type-signature"></span>resetOnEnter<span class="type-signature"> :boolean</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        If true, the state will revert to its defaultState
+when it is set as the currentState for a parent state.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 98
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="states"><span class="type-signature"></span>states<span class="type-signature"> :object</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        An hash of states that have been registered as
+substates.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 69
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
     
     
         <h3 class="subsection-title">Methods</h3>
@@ -311,7 +582,7 @@ intial values for your state object. The format looks like this:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 312
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 328
     </li></ul></dd>
     
     
@@ -499,7 +770,7 @@ is ultimately used).
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 350
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 366
     </li></ul></dd>
     
     
@@ -621,7 +892,7 @@ the name parameter.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 275
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 291
     </li></ul></dd>
     
     
@@ -817,7 +1088,7 @@ can be used to transition FROM the null state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 486
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 502
     </li></ul></dd>
     
     
@@ -965,7 +1236,7 @@ can be used to transition FROM the null state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 227
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 243
     </li></ul></dd>
     
     
@@ -1107,7 +1378,7 @@ can be used to transition FROM the null state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 429
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 445
     </li></ul></dd>
     
     
@@ -1180,7 +1451,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 243
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 259
     </li></ul></dd>
     
     
@@ -1270,7 +1541,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 155
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 171
     </li></ul></dd>
     
     
@@ -1360,7 +1631,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 259
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 275
     </li></ul></dd>
     
     
@@ -1501,7 +1772,7 @@ but keep in mind that values may get overridden.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 143
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 159
     </li></ul></dd>
     
     
@@ -1646,7 +1917,7 @@ using dispatch().
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 458
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 474
     </li></ul></dd>
     
     
@@ -1720,7 +1991,7 @@ If there is no parent state, returns null.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 326
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 342
     </li></ul></dd>
     
     
@@ -1866,7 +2137,7 @@ methods to enter and exit the state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 169
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 185
     </li></ul></dd>
     
     
@@ -1958,7 +2229,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 525
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 541
     </li></ul></dd>
     
     
@@ -2045,7 +2316,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 515
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 531
     </li></ul></dd>
     
     
@@ -2110,7 +2381,7 @@ with the object's root state and extending to the finalCurrentState.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Tue Apr 09 2013 11:17:02 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Tue Apr 09 2013 11:41:09 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
