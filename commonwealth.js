@@ -24,6 +24,7 @@ commonwealth.INVALID_STATE_ID_ERROR = {message: "The name of a state cannot be '
  */
 commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a circular reference because it's already part of the state chain."};
 
+
 /**
  * Stateful is the main class in commonwealth. It represents an
  * object that is both a stateful (having states) and a state.
@@ -32,10 +33,28 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
  * that contains two states, loggedIn and loggedOut which are also
  * both instances of Stateful.
  *
+ * About JSON format:
+ *
+ * A json object can be passed into the constructor to create the
+ * intial values for your stateful object. The format looks like this:
+ * <pre>
+{
+    name: "string", // only required field
+    states: {...},  // an object containing 1 or more states
+                    // which follow the exact same syntax as this json object.
+    defaultState: "stateName", // the name of a state to set as
+                               // the default substate.
+    methods: {...}, // 1 or more methods to add using #addStateMethod()
+    transitions: {...}  // 1 or more transitions using the same syntax as
+                        // #addTransition()
+}
+ *
+ *
  * @constructor
+ * @class
  * @this {commonwealth.Stateful}
  *
- * @param [name_or_JSON] {string} The name (id) of this state or a json object used to set properties of the state.
+ * @param [name_or_JSON] {string|object} The name (id) of this state or a json object used to set properties of the state.
  */
 commonwealth.Stateful = function (name_or_JSON) {
     var _ = commonwealth.utils,
@@ -152,6 +171,20 @@ commonwealth.Stateful = function (name_or_JSON) {
             jsonUtil.parseState(this, json);
         }
     }
+};
+
+/**
+ * Uses a json object to set properties on a stateful object.
+ * Normally this is used automatically by passing a json object to the
+ * constructor. It can be used after an object has been instantiated
+ * but keep in mind that values may get overridden.
+ *
+ * @this {commonwealth.Stateful}
+ *
+ * @param json {object} See constructor for full documentation.
+ */
+commonwealth.Stateful.prototype.initWithJSON = function initWithJSON(json) {
+    return commonwealth.utils.jsonUtil.parseState(this, json);
 };
 
 /**
@@ -486,7 +519,14 @@ commonwealth.utils = {
         return obj;
     },
 
+    /**
+     * @class
+     * @private
+     */
     jsonUtil : {
+        /**
+         * @static
+         */
         parseName : function parseName(json) {
             if (json && commonwealth.utils.isString(json.name)) {
                 return json.name;
@@ -494,23 +534,35 @@ commonwealth.utils = {
                 throw commonwealth.INVALID_STATE_ID_ERROR;
             }
         },
+        /**
+         * @static
+         */
         parseDefaultState: function parseDefaultState(json) {
             if (json && commonwealth.utils.isString(json.defaultState)) {
                 return json.defaultState;
             }
         },
+        /**
+         * @static
+         */
         parseEnterFunction: function parseEnterFunction(json) {
             if (json && commonwealth.utils.isFunction(json.enter)) {
                 return json.enter;
             }
             return null;
         },
+        /**
+         * @static
+         */
         parseExitFunction: function parseExitFunction(json) {
             if (json && commonwealth.utils.isFunction(json.exit)) {
                 return json.exit;
             }
             return null;
         },
+        /**
+         * @static
+         */
         parseMethods: function parseMethods(state, json) {
             var name, method;
             if (json && json.methods) {
@@ -520,6 +572,9 @@ commonwealth.utils = {
                 }
             }
         },
+        /**
+         * @static
+         */
         parseStates: function parseStates(state, json) {
             var stateJSON, substate;
 
@@ -531,6 +586,9 @@ commonwealth.utils = {
                 }
             }
         },
+        /**
+         * @static
+         */
         parseState: function parseState(state, json) {
             var name, methods, method, states, substate,
                 message;
@@ -550,7 +608,6 @@ commonwealth.utils = {
         }
     }
 };
-
 
 ////////// HISTORY ////////////
 
@@ -628,7 +685,7 @@ commonwealth.History.prototype.addState = function addState (state) {
  *
  * @this {commonwealth.History}
  *
- * @param [steps] {number} The number of steps to go back. Default is 1.
+ * @param [steps=1] {number} The number of steps to go back. Default is 1.
  */
 commonwealth.History.prototype.rewind = function rewind (steps) {
     var state, stateful;

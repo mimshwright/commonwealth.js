@@ -41,7 +41,7 @@
     
         
 <dt>
-    <h4 class="name" id="Stateful"><span class="type-signature"></span>new Stateful<span class="signature">(<span class="optional">name</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Stateful"><span class="type-signature"></span>new Stateful<span class="signature">(<span class="optional">name_or_JSON</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -55,6 +55,22 @@ It is a composite state object.
 For example, this may represent the backend for a login button
 that contains two states, loggedIn and loggedOut which are also
 both instances of Stateful.
+
+About JSON format:
+
+A json object can be passed into the constructor to create the
+intial values for your stateful object. The format looks like this:
+<pre>
+{
+    name: "string", // only required field
+    states: {...},  // an object containing 1 or more states
+                    // which follow the exact same syntax as this json object.
+    defaultState: "stateName", // the name of a state to set as
+                               // the default substate.
+    methods: {...}, // 1 or more methods to add using #addStateMethod()
+    transitions: {...}  // 1 or more transitions using the same syntax as
+                        // #addTransition()
+}
     </div>
     
 
@@ -93,13 +109,16 @@ both instances of Stateful.
 	
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>name_or_JSON</code></td>
             
             
             <td class="type">
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
 
 
             
@@ -112,12 +131,14 @@ both instances of Stateful.
                 
                     
                 
+                    
+                
                 </td>
             
             
             
             
-            <td class="description last">The name (id) of this state.</td>
+            <td class="description last">The name (id) of this state or a json object used to set properties of the state.</td>
         </tr>
 	
 	
@@ -148,7 +169,7 @@ both instances of Stateful.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 40
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 59
     </li></ul></dd>
     
     
@@ -160,6 +181,10 @@ both instances of Stateful.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -285,7 +310,7 @@ both instances of Stateful.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 231
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 286
     </li></ul></dd>
     
     
@@ -306,6 +331,10 @@ both instances of Stateful.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -403,6 +432,8 @@ is ultimately used).
                 
                     
                 
+                    
+                
                 </td>
             
             
@@ -426,6 +457,8 @@ is ultimately used).
                 <td class="attributes">
                 
                     &lt;optional><br>
+                
+                    
                 
                     
                 
@@ -465,7 +498,7 @@ is ultimately used).
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 269
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 324
     </li></ul></dd>
     
     
@@ -477,6 +510,10 @@ is ultimately used).
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -583,7 +620,7 @@ the name parameter.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 194
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 249
     </li></ul></dd>
     
     
@@ -595,6 +632,10 @@ the name parameter.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -773,7 +814,7 @@ dispatched. "*" can be used to match any state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 395
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 450
     </li></ul></dd>
     
     
@@ -785,6 +826,10 @@ dispatched. "*" can be used to match any state.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -876,6 +921,8 @@ dispatched. "*" can be used to match any state.
                 
                     
                 
+                    
+                
                 </td>
             
             
@@ -915,7 +962,7 @@ dispatched. "*" can be used to match any state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 146
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 201
     </li></ul></dd>
     
     
@@ -927,6 +974,10 @@ dispatched. "*" can be used to match any state.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1053,7 +1104,7 @@ dispatched. "*" can be used to match any state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 348
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 403
     </li></ul></dd>
     
     
@@ -1065,6 +1116,10 @@ dispatched. "*" can be used to match any state.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1122,7 +1177,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 162
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 217
     </li></ul></dd>
     
     
@@ -1134,6 +1189,10 @@ or returns `this`.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1208,7 +1267,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 178
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 233
     </li></ul></dd>
     
     
@@ -1220,6 +1279,10 @@ or returns `this`.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1243,6 +1306,129 @@ or returns `this`.
 </dl>
 
         
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="initWithJSON"><span class="type-signature"></span>initWithJSON<span class="signature">(json)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Uses a json object to set properties on a stateful object.
+Normally this is used automatically by passing a json object to the
+constructor. It can be used after an object has been instantiated
+but keep in mind that values may get overridden.
+    </div>
+    
+
+    
+    
+    
+        <h5>This:</h5>
+        <ul><li>{<a href="commonwealth.Stateful.html">commonwealth.Stateful</a>}</li></ul>
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>json</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">See constructor for full documentation.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 186
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
     
     
 </dd>
@@ -1367,7 +1553,7 @@ using dispatch().
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 372
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 427
     </li></ul></dd>
     
     
@@ -1379,6 +1565,10 @@ using dispatch().
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1437,7 +1627,7 @@ If there is no parent state, returns null.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 245
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 300
     </li></ul></dd>
     
     
@@ -1449,6 +1639,10 @@ If there is no parent state, returns null.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1525,7 +1719,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 431
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 486
     </li></ul></dd>
     
     
@@ -1537,6 +1731,10 @@ with the object's root state and extending to the finalCurrentState.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1608,7 +1806,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 421
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 476
     </li></ul></dd>
     
     
@@ -1620,6 +1818,10 @@ with the object's root state and extending to the finalCurrentState.
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -1669,7 +1871,7 @@ with the object's root state and extending to the finalCurrentState.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Sat Apr 06 2013 09:05:42 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 08 2013 18:37:41 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
