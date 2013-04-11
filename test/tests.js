@@ -274,7 +274,22 @@ test ("Resetting states on enter", function () {
 	root.currentState(child);
 	equal(child.currentState().name, "grandson", "Reverts to defaultState");
 
+	child.setCurrentState(granddaughter);
+	child.reset();
+	equal(child.currentState().name, "grandson", "Reset manually with reset()");
 
+});
+
+test ("get() and set()", function () {
+	var root = new c.State("root");
+	var child = root.addCurrentState("child");
+	var grandson = child.addCurrentState("grandson");
+	var granddaughter = child.addSubstate("granddaughter");
+
+	root.set("name", "billy");
+	equal(grandson.get("name"), "billy", "Using set works. Get works on the ancestors.");
+	grandson.set("name", "jerry");
+	equal(child.get("name"), "jerry", "Using set works from the ancestors.");
 });
 
 module ("Conversion methods");
