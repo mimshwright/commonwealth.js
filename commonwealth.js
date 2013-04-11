@@ -217,7 +217,7 @@ commonwealth.State.prototype.setCurrentState = function setCurrentState (newStat
 
             // reset the newState to default if desired.
             if (newState.resetOnEnter) {
-                newState.setCurrentState(newState.defaultState);
+                newState.reset();
             }
             if (_.hasMethod(newState, "enter")) {
                 newState.enter();
@@ -225,6 +225,10 @@ commonwealth.State.prototype.setCurrentState = function setCurrentState (newStat
         }
     }
     return this._currentState;
+};
+
+commonwealth.State.prototype.reset = function reset() {
+    return this.setCurrentState(this.defaultState);
 };
 
 
@@ -342,12 +346,50 @@ commonwealth.State.prototype.addCurrentState = function addCurrentState (state) 
 commonwealth.State.prototype.parentState = function parentState () {
     return this._parentState;
 };
+
+ /**
+ * Returns the state at the top of the chain.
+ * If there is no parent state, returns itself.
+ *
+ * @this {commonwealth.State}
+ * @return {commonwealth.State} The root state of this or this.
+ */
 commonwealth.State.prototype.rootState = function rootState () {
     var parentState = this.parentState();
     if (parentState === null) {
         return this;
     }
     return parentState.rootState();
+};
+
+/**
+ * Gets a property that is shared amongst all the states in the
+ * chain. (The value is actually stored in the root state)
+ * See also #set()
+ *
+ * @this {commonwealth.State}
+ *
+ * @param prop {string} The name of the property to return.
+ * @return {*} The value of the property, prop.
+ */
+commonwealth.State.prototype.get = function get (prop) {
+    return this.rootState()[prop];
+};
+
+/**
+ * Sets a property that is shared amongst all the states in the
+ * chain. (The value is actually stored in the root state)
+ * See also #get()
+ *
+ * @this {commonwealth.State}
+ *
+ * @param prop {string} The name of the property to return.
+ * @param val {*} The value of the property.
+ * @return {*} The value of the property, prop.
+ */
+commonwealth.State.prototype.set = function set (prop, val) {
+    this.rootState()[prop] = val;
+    return val;
 };
 
 /**
