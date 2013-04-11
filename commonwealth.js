@@ -223,6 +223,11 @@ commonwealth.State.prototype.setCurrentState = function setCurrentState (newStat
                 newState.enter();
             }
         }
+
+        // todo: document this feature somehow
+        if (commonwealth.utils.hasMethod(this, "onStateChange")) {
+            this.onStateChange(oldState, newState);
+        }
     }
     return this._currentState;
 };
@@ -627,8 +632,6 @@ commonwealth.utils = {
         parseName : function parseName(json) {
             if (json && commonwealth.utils.isString(json.name)) {
                 return json.name;
-            } else {
-                throw commonwealth.INVALID_STATE_ID_ERROR;
             }
         },
         /**
@@ -679,10 +682,24 @@ commonwealth.utils = {
                 for (var name in json.states) {
                     stateJSON = json.states[name];
                     substate = new commonwealth.State(stateJSON);
+                    // set name if it wasn't explicitly defined in json.
+                    substate.name = substate.name || name;
                     state.addSubstate(substate);
                 }
             }
         },
+
+        /**
+         * @static
+         */
+        parseSet : function parseSet (state, json) {
+            if (json && json.set) {
+                for (var name in json.set) {
+                    state.set(name, json.set[name]);
+                }
+            }
+        },
+
         /**
          * @static
          */
@@ -697,10 +714,13 @@ commonwealth.utils = {
             // more complex recursive parsing.
             this.parseMethods(state, json);
             this.parseStates(state,json);
+            this.parseSet (state, json);
 
             for (message in json.transitions) {
                 state.addTransition(message, json.transitions[message]);
             }
+
+            state.onStateChange = json.onStateChange;
             state.setCurrentState(this.parseDefaultState(json));
             state.defaultState = state.getCurrentState();
             state.resetOnEnter = json.resetOnEnter;
