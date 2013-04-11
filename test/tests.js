@@ -193,20 +193,30 @@ test ("enter() and exit()", function () {
 	equal (state.lastStateEntered, enterTestState.name, "enter() is called automatically when a currentState is set.");
 });
 
-// test ("supportsMethod()", function () {
-// 	var parent = new State();
-// 	var child = parent.addSubstate("child");
+test ("onStateChange()", function () {
+	var alf = new c.State("a");
+	var buck = alf.addSubstate("b");
+	var cris = alf.addSubstate("c");
+	var dimitri = buck.addSubstate("d");
 
-// 	parent.addStateMethod("both");
-// 	child.both = function () {};
-// 	ok(parent.supportsMethod("both") && child.supportsMethod("both"), "Testing that a state root and a substate can both support a method.");
+	var result = null;
 
-// 	parent.addStateMethod("parentOnly");
-// 	ok(parent.supportsMethod("parentOnly") && !child.supportsMethod("parentOnly"), "Testing a state root which added a method through addStateMethod().");
+	alf.onStateChange = function (oldState, newState) {
+		result = oldState ? oldState.name : "-";
+		result += ",";
+		result += newState ? newState.name : "-";
+		return result;
+	};
 
-// 	child.childOnly("childOnly");
-// 	ok(!parent.supportsMethod("childOnly") && child.supportsMethod("childOnly"), "Testing a state which added a method through function definition.");
-// });
+	equal(result, null, "Result is null to begin with." );
+	alf.setCurrentState(buck);
+	equal(result, "-,b", "Function is called when setCurrentState is called." );
+	alf.setCurrentState(cris);
+	equal(result, "b,c", "Function is called when setCurrentState is called again." );
+	buck.setCurrentState(dimitri);
+	equal(result, "b,c", "Function is not called when a substate sets its state" );
+
+});
 
 module ("Nested States");
 
@@ -274,7 +284,22 @@ test ("Resetting states on enter", function () {
 	root.currentState(child);
 	equal(child.currentState().name, "grandson", "Reverts to defaultState");
 
+	child.setCurrentState(granddaughter);
+	child.reset();
+	equal(child.currentState().name, "grandson", "Reset manually with reset()");
 
+});
+
+test ("get() and set()", function () {
+	var root = new c.State("root");
+	var child = root.addCurrentState("child");
+	var grandson = child.addCurrentState("grandson");
+	var granddaughter = child.addSubstate("granddaughter");
+
+	root.set("name", "billy");
+	equal(grandson.get("name"), "billy", "Using set works. Get works on the ancestors.");
+	grandson.set("name", "jerry");
+	equal(child.get("name"), "jerry", "Using set works from the ancestors.");
 });
 
 module ("Conversion methods");
@@ -420,6 +445,9 @@ test ("Creating new states with JSON", function () {
 				}
 			}
 		},
+		set: {
+			"foo":"bar"
+		},
 		defaultState: "son",
 		methods: {
 			greet: function () {
@@ -431,6 +459,9 @@ test ("Creating new states with JSON", function () {
 		}
 	});
 
+	// todo: test set
+	// todo: test onStateChange()
+
 	equal(state.name, "dad", "Set name with json.");
 	ok(state.states["son"] && state.states["daughter"], "Substates are registered on the parent.");
 	equal(state.currentState().name, "son" , "Set defaultState with json.");
@@ -438,11 +469,10 @@ test ("Creating new states with JSON", function () {
 	state.currentState("daughter");
 	equal(result, "son exited" , "enter() function set with json.");
 	equal(state.greet(), "sally", "Methods are defined with json. Also nesting works!");
-	raises (function () {
-		new c.State({});
-	}, "States must define a valid name.");
 	state.dispatch("changeGender");
 	equal(state.currentState().name, "son", "Transitions can be added through json.");
+	equal(state.get("foo"), "bar", "Set works on root.");
+	equal(state.currentState().get("foo"), "bar", "Set works on children.");
 });
 
 module("History");

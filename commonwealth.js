@@ -69,21 +69,19 @@ commonwealth.State = function (name_or_JSON) {
     /**
      * An hash of states that have been registered as
      * substates.
-     * @type {object}
+     * @member states {object}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.states = {};
-
-     /**
-     * A hash of message handler maps.
-     * @type {object}
-     */
-     this.handlers = {};
 
     /**
      * A name (id) for the state. This name will be used
      * when referring to the state by a string rather than
      * by reference.
-     * @type {string}
+     * @member name {string}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.name = null;
 
@@ -91,7 +89,9 @@ commonwealth.State = function (name_or_JSON) {
      * Used in conjunction with resetOnEnter. The default substate
      * of the state.
      *
-     * @type {string|commonwealth.State}
+     * @member defaultState {string|commonwealth.State}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.defaultState = null;
 
@@ -99,7 +99,9 @@ commonwealth.State = function (name_or_JSON) {
      * If true, the state will revert to its defaultState
      * when it is set as the currentState for a parent state.
      *
-     * @type {boolean}
+     * @member resetOnEnter {boolean}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.resetOnEnter = false;
 
@@ -107,14 +109,28 @@ commonwealth.State = function (name_or_JSON) {
      * A reference to the history object for this State.
      * The history object records the history of the different states
      * set on the State object.
-     * @type {commonwealth.History}
+     *
+     * @member history {commonwealth.History}
+     * @memberof commonwealth.State
+     * @instance
      */
     this.history = new commonwealth.History(this);
 
-    /** @private */
+     /**
+     * @private
+     */
     this._currentState = null;
-    /** @private */
+
+    /**
+     * @private
+     */
     this._parentState = null;
+
+    /**
+     * A hash of message handler maps.
+     * @private
+     */
+    this._handlers = {};
 
     // check for optional parameters.
     if (name_or_JSON) {
@@ -201,14 +217,23 @@ commonwealth.State.prototype.setCurrentState = function setCurrentState (newStat
 
             // reset the newState to default if desired.
             if (newState.resetOnEnter) {
-                newState.setCurrentState(newState.defaultState);
+                newState.reset();
             }
             if (_.hasMethod(newState, "enter")) {
                 newState.enter();
             }
         }
+
+        // todo: document this feature somehow
+        if (commonwealth.utils.hasMethod(this, "onStateChange")) {
+            this.onStateChange(oldState, newState);
+        }
     }
     return this._currentState;
+};
+
+commonwealth.State.prototype.reset = function reset() {
+    return this.setCurrentState(this.defaultState);
 };
 
 
@@ -326,12 +351,50 @@ commonwealth.State.prototype.addCurrentState = function addCurrentState (state) 
 commonwealth.State.prototype.parentState = function parentState () {
     return this._parentState;
 };
+
+ /**
+ * Returns the state at the top of the chain.
+ * If there is no parent state, returns itself.
+ *
+ * @this {commonwealth.State}
+ * @return {commonwealth.State} The root state of this or this.
+ */
 commonwealth.State.prototype.rootState = function rootState () {
     var parentState = this.parentState();
     if (parentState === null) {
         return this;
     }
     return parentState.rootState();
+};
+
+/**
+ * Gets a property that is shared amongst all the states in the
+ * chain. (The value is actually stored in the root state)
+ * See also #set()
+ *
+ * @this {commonwealth.State}
+ *
+ * @param prop {string} The name of the property to return.
+ * @return {*} The value of the property, prop.
+ */
+commonwealth.State.prototype.get = function get (prop) {
+    return this.rootState()[prop];
+};
+
+/**
+ * Sets a property that is shared amongst all the states in the
+ * chain. (The value is actually stored in the root state)
+ * See also #get()
+ *
+ * @this {commonwealth.State}
+ *
+ * @param prop {string} The name of the property to return.
+ * @param val {*} The value of the property.
+ * @return {*} The value of the property, prop.
+ */
+commonwealth.State.prototype.set = function set (prop, val) {
+    this.rootState()[prop] = val;
+    return val;
 };
 
 /**
@@ -427,7 +490,7 @@ commonwealth.State.prototype.addStateMethod = function addStateMethod (methodNam
  * @param message {string} A message that is broadcast.
  */
 commonwealth.State.prototype.dispatch = function (message) {
-    var handlers = this.handlers[message],
+    var handlers = this._handlers[message],
         handler,
         current;
 
@@ -456,10 +519,10 @@ commonwealth.State.prototype.dispatch = function (message) {
  *                           dispatched.
  */
 commonwealth.State.prototype.on = function on (signal, handler) {
-    if (!this.handlers[signal]) {
-        this.handlers[signal] = [];
+    if (!this._handlers[signal]) {
+        this._handlers[signal] = [];
     }
-    this.handlers[signal].push(handler);
+    this._handlers[signal].push(handler);
 };
 
 /**
@@ -569,8 +632,6 @@ commonwealth.utils = {
         parseName : function parseName(json) {
             if (json && commonwealth.utils.isString(json.name)) {
                 return json.name;
-            } else {
-                throw commonwealth.INVALID_STATE_ID_ERROR;
             }
         },
         /**
@@ -621,10 +682,24 @@ commonwealth.utils = {
                 for (var name in json.states) {
                     stateJSON = json.states[name];
                     substate = new commonwealth.State(stateJSON);
+                    // set name if it wasn't explicitly defined in json.
+                    substate.name = substate.name || name;
                     state.addSubstate(substate);
                 }
             }
         },
+
+        /**
+         * @static
+         */
+        parseSet : function parseSet (state, json) {
+            if (json && json.set) {
+                for (var name in json.set) {
+                    state.set(name, json.set[name]);
+                }
+            }
+        },
+
         /**
          * @static
          */
@@ -639,10 +714,13 @@ commonwealth.utils = {
             // more complex recursive parsing.
             this.parseMethods(state, json);
             this.parseStates(state,json);
+            this.parseSet (state, json);
 
             for (message in json.transitions) {
                 state.addTransition(message, json.transitions[message]);
             }
+
+            state.onStateChange = json.onStateChange;
             state.setCurrentState(this.parseDefaultState(json));
             state.defaultState = state.getCurrentState();
             state.resetOnEnter = json.resetOnEnter;
