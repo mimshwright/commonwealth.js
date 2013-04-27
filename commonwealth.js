@@ -26,17 +26,17 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
 
 
 /**
- * State is the main class in commonwealth. It represents an
+ * <p>State is the main class in commonwealth. It represents an
  * object that is both a state container and a state.
  * It is a composite state object.
- * For example, this may represent the backend for a login button
+ * For example, this may represent the controller for a login button
  * that contains two states, loggedIn and loggedOut which are also
- * both instances of State.
+ * both instances of State.</p>
  *
- * About JSON format:
+ * <b>About JSON format:</b><br />
  *
- * A json object can be passed into the constructor to create the
- * intial values for your state object. The format looks like this:
+ * <p>A json object can be passed into the constructor to create the
+ * intial values for your state object. The format looks like this:</p>
  * <pre>
 {
     name: "string", // only required field
