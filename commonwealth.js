@@ -26,17 +26,17 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
 
 
 /**
- * State is the main class in commonwealth. It represents an
+ * <p>State is the main class in commonwealth. It represents an
  * object that is both a state container and a state.
  * It is a composite state object.
- * For example, this may represent the backend for a login button
+ * For example, this may represent the controller for a login button
  * that contains two states, loggedIn and loggedOut which are also
- * both instances of State.
+ * both instances of State.</p>
  *
- * About JSON format:
+ * <b>About JSON format:</b><br />
  *
- * A json object can be passed into the constructor to create the
- * intial values for your state object. The format looks like this:
+ * <p>A json object can be passed into the constructor to create the
+ * intial values for your state object. The format looks like this:</p>
  * <pre>
 {
     name: "string", // only required field
@@ -46,8 +46,11 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
                                // the default substate.
     resetOnEnter: true, // true or false. Sets the resetOnEnter property.
     methods: {...}, // 1 or more methods to add using #addStateMethod()
-    transitions: {...}  // 1 or more transitions using the same syntax as
+    transitions: {...},  // 1 or more transitions using the same syntax as
                         // #addTransition()
+    onStateChange: function (){...}, // define onStateChange, enter, or exit
+    enter: function (){...},
+    exit: function (){...}
 }
  *
  *
@@ -489,7 +492,7 @@ commonwealth.State.prototype.addStateMethod = function addStateMethod (methodNam
  *
  * @param message {string} A message that is broadcast.
  */
-commonwealth.State.prototype.dispatch = function (message) {
+commonwealth.State.prototype.trigger = function (message) {
     var handlers = this._handlers[message],
         handler,
         current;
@@ -504,13 +507,13 @@ commonwealth.State.prototype.dispatch = function (message) {
     // Bubble events up to substates
     current = this.currentState();
     if (current) {
-        current.dispatch(message);
+        current.trigger(message);
     }
 };
 
 /**
  * Registers a function that is called when a signal is dispatched
- * using dispatch().
+ * using trigger().
  *
  * @this {commonwealth.State}
  *
@@ -527,15 +530,15 @@ commonwealth.State.prototype.on = function on (signal, handler) {
 
 /**
  * Registers a one or more state changes that occur when a message is
- * dispatched using dispatch(). Also, this automatically registers a
- * method that dispatches the event for you (using addStateMethod()).
- * Once a transition is registered, you can use either dispatch() or
+ * dispatched using trigger(). Also, this automatically registers a
+ * method that triggers the event for you (using addStateMethod()).
+ * Once a transition is registered, you can use either trigger() or
  * the generated method to transition.
- * e.g. dispatch("foo"); or foo();
+ * e.g. trigger("foo"); or foo();
  *
  * The map of state changes is an object with names of states paired
  * with the state they should change to when the transition event is
- * dispatched. "*" can be used on the left side to match any state.
+ * triggered. "*" can be used on the left side to match any state.
  * `null` can be used to transition TO "no state" and the string "null"
  * can be used to transition FROM the null state.
  *

@@ -42,6 +42,7 @@ test ("currentState() method", function () {
 	state.currentState(testState);
 	equal (testState, state.currentState(), "currentState(state) sets the current state while currentState() (no parameter) gets it.");
 	equal (testState, state.currentState("test"), "You can use the name of a state instead of the state object to set the state");
+	equal (state.currentState(null), testState, "Setting with null doesn't work because it thinks you're trying to get.");
 	raises (function () { state.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
 	equal (state.setCurrentState("test"), state.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
 
@@ -337,7 +338,12 @@ test ("Message handlers", function () {
 
 	var message = "Say hello";
 	var result = "";
+	var called = 0;
 
+	greeter.on(message, function (message) {
+		// listen on the root to log every call
+		called++;
+	});
 	en.on(message, function (message) {
 		result = "Hello";
 	});
@@ -351,20 +357,21 @@ test ("Message handlers", function () {
 		result = "Hallo";
 	});
 
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Hello", "Works for English." );
 
 	greeter.currentState("fr");
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Bonjour", "Works for French." );
 
 	greeter.currentState("de");
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Guten tag", "Works for nested German." );
 
 	de.currentState("casual");
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Hallo", "Works for nested German." );
+	equal(called, 4, "Trigger calls every listener every time." );
 
 });
 
@@ -383,30 +390,30 @@ test ("Transitions", function () {
 	son.addSubstate("granddaughter");
 
 	equal (parent.currentState(), son, "Start with son.");
-	parent.dispatch("changeGender");
+	parent.trigger("changeGender");
 	equal (parent.currentState(), daughter, "Changed state with transition.");
 	changeGenderFunc.call(parent);
 	equal (parent.currentState(), son, "Transitions happen based on context. Transitions can be triggered with a method call too. addTransition() returns a reference to the generated function.");
 	parent.currentState(stepDaughter);
-	parent.dispatch("firstSon");
+	parent.trigger("firstSon");
 	equal (parent.currentState(), son, "Wildcard transitions with *.");
 	parent.currentState(stepDaughter);
 	parent.addTransition("changeGender", {"stepDaughter":"son"});
-	parent.dispatch("changeGender"); // stepDaughter -> son
-	parent.dispatch("changeGender"); // son -> daughter
+	parent.trigger("changeGender"); // stepDaughter -> son
+	parent.trigger("changeGender"); // son -> daughter
 	equal (parent.currentState().name, "daughter", "You can add transitions after one has been defined already and it won't affect the old ones (although one may overwrite the other if not careful).");
 	parent.currentState("son");
-	parent.dispatch("changeGrandchildGender");
+	parent.trigger("changeGrandchildGender");
 	equal (son.currentState().name, "granddaughter", "Works with nested states.");
 	parent.currentState("daughter");
-	parent.dispatch("changeGrandchildGender");
+	parent.trigger("changeGrandchildGender");
 	equal (son.currentState().name, "granddaughter", "Nested states are only affected if they're in the current state chain.");
-	parent.dispatch("foo");
+	parent.trigger("foo");
 	equal (parent.currentState(), daughter, "Unregistered transitions do nothing.");
 	parent.setCurrentState("son");
-	parent.dispatch("sonNullNullSon");
+	parent.trigger("sonNullNullSon");
 	equal(parent.currentState(), null, "You can transition to null.");
-	parent.dispatch("sonNullNullSon");
+	parent.trigger("sonNullNullSon");
 	equal(parent.currentState().name, "son", "You can transition from null.");
 });
 
@@ -469,7 +476,7 @@ test ("Creating new states with JSON", function () {
 	state.currentState("daughter");
 	equal(result, "son exited" , "enter() function set with json.");
 	equal(state.greet(), "sally", "Methods are defined with json. Also nesting works!");
-	state.dispatch("changeGender");
+	state.trigger("changeGender");
 	equal(state.currentState().name, "son", "Transitions can be added through json.");
 	equal(state.get("foo"), "bar", "Set works on root.");
 	equal(state.currentState().get("foo"), "bar", "Set works on children.");
@@ -522,4 +529,171 @@ test( "History functions", function () {
 
     history.clear();
     equal (history.states.length, 0, "Calling clear() clears the history.");
+});
+
+module("Manual examples");
+
+test ("addSubstate", function () {
+	var state = new commonwealth.State();
+	var onState = state.addSubstate("on");
+	var offState = state.addSubstate("off");
+
+	state.getCurrentState(); // By default, current state is null
+	//////
+	equal (state.getCurrentState(), null);
+	//////
+	state.setCurrentState(onState);
+
+	// You can use just the name of the state instead of the state
+	// object if it's been added as a substate.
+	state.setCurrentState("off");
+	//////
+	equal(state.getCurrentState(), offState);
+	//////
+	state.getCurrentState() === offState; // true
+
+	// jQuery style syntax also works.
+	state.currentState(); // onState
+	state.currentState(onState); // same as setCurrentState(onState)
+
+	var disabled = state.addCurrentState("disabled");
+	//////
+	equal(state.currentState(), disabled);
+	//////
+	state.currentState() === disabled; // true
+});
+
+test ("addStateMethod", function () {
+	var calculator = new commonwealth.State("calculator");
+	var add = calculator.addSubstate("add");
+	var multiply = calculator.addSubstate("multiply");
+
+	// Add a method to the calculator called calculate.
+	calculator.addStateMethod("calculate");
+
+	// Define the function in the substates.
+	// Use addStateMethod() on the substate.
+	add.addStateMethod(function calculate (a, b) {
+		return a + b;
+	});
+
+	// Or just set the function directly.
+	multiply.calculate = function (a, b) { return a * b; };
+
+	// Executing the method on the root state will call the function
+	// on the current state.
+	calculator.currentState("add");
+	//////
+	equal (calculator.calculate(2,4), 6);
+	//////
+	calculator.calculate(2,4); // returns 6
+
+
+	calculator.currentState("multiply");
+	//////
+	equal (calculator.calculate(2,4), 8);
+	//////
+	calculator.calculate(2,4); // returns 8
+
+	// If there is no substate, the function will return null.
+	calculator.setCurrentState(null);
+	//////
+	equal (calculator.calculate(2,4), null);
+	//////
+	calculator.calculate(2,4); // returns null since there is no default.
+
+
+	var greeter = new commonwealth.State("greeter");
+	greeter.addStateMethod(function sayHello (name) {
+		return "Hello, " + name + ".";
+	});
+
+	greeter.addSubstate("happy").addStateMethod(function sayHello(name) {
+		return "Omigosh, HEY, " + name + ", how's it going!?";
+	});
+	greeter.addSubstate("sad").addStateMethod(function sayHello(name) {
+		return "Oh hi, " + name + "... whatever.";
+	});
+
+	//////
+	equal (greeter.sayHello("Dave"), "Hello, Dave.");
+	//////
+	// When currentState is null, use the default function.
+	greeter.sayHello("Dave"); // Hello, Dave.
+
+	// Dave says something very hurtful.
+
+	greeter.setCurrentState("sad");
+	//////
+	equal (greeter.sayHello("Brian"), "Oh hi, Brian... whatever.");
+	//////
+	greeter.sayHello("Brian"); // Oh hi, Brian... whatever.
+});
+
+test ("get() and set()", function () {
+	var car = new commonwealth.State("car");
+	var driving = car.addCurrentState("driving");
+
+	car.set("speed", 40);
+	//////
+	equal(driving.get("speed"), 40);
+	//////
+	// the speed is available from the driving state
+	driving.get("speed"); // 40
+});
+
+test ("messages", function () {
+	var state = new commonwealth.State();
+	var child = state.addCurrentState("child");
+	var result = "";
+
+	// return the child's name on the "sayName" event.
+	child.on("sayName", function () {
+		result = this.name;
+	});
+
+	// trigger the "sayName" event.
+	state.trigger("sayName");
+	//////
+	equal(result, "child");
+	//////
+	result === "child"; // true
+});
+
+test ("json", function () {
+	var trafficLight = new commonwealth.State({
+		"name": "trafficLight",
+		"states": {
+			"on": {
+				"enter": function () {
+					var id = setInterval(function () {
+						this.trigger("change");
+					}, 1000);
+					this.set("id", id);
+				},
+				"exit" : function () {
+					clearInterval(this.get(id));
+				},
+				states : {
+					"red": {},
+					"green": {},
+					"yellow": {}
+				},
+				defaultState: "red",
+				transitions : {
+					"change": {"red":"green", "green":"yellow", "yellow":"red"}
+				},
+				onStateChange: function (oldState, newState) {
+					console.log(newState.name);
+				}
+			},
+			"off": {}
+		},
+		"transitions" : {
+			"on": {"*":"on"},
+			"off": {"*":"off"}
+		}
+	});
+
+	trafficLight.trigger("on");
 });
