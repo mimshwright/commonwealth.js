@@ -94,6 +94,7 @@ Sometimes you want to trigger an action when switching states. To execute a func
 
 	sub.currentState(periscopeDepth); // depth to 10m, raise periscope (enter)
 	sub.currentState(silentRunning); // retract scope (exit), disable sonar (enter).
+	sub.setCurrentState(null); // enable sonar (exit)
 
 ### Adding methods to the state composite
 

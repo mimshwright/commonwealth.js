@@ -42,6 +42,7 @@ test ("currentState() method", function () {
 	state.currentState(testState);
 	equal (testState, state.currentState(), "currentState(state) sets the current state while currentState() (no parameter) gets it.");
 	equal (testState, state.currentState("test"), "You can use the name of a state instead of the state object to set the state");
+	equal (state.currentState(null), testState, "Setting with null doesn't work because it thinks you're trying to get.");
 	raises (function () { state.currentState("bogus"); }, "If you use a name instead of the state object and it can't be found, an error is thrown.");
 	equal (state.setCurrentState("test"), state.getCurrentState(), "currentState() ≈ getCurrentState() ; currentState(state) ≈ setCurrentState(state)");
 
