@@ -36,7 +36,9 @@ Most of the time you will be creating states in the context of another state. Fo
 	// Automatically create a substate with a name
 	var offState = state.addSubstate("off");
 
-As you can see, the function returns a reference to the state it just created.
+As you can see, the function returns a reference to the state it just created. Also, you can always get a reference to a state object by name like this:
+
+	var onState = state.getStateByName("on");
 
 The library also allows you to create `State` objects using a JSON object passed into the constructor. [Creating states with JSON](#json) will be covered later after you have a better understanding of how commonwealth works.
 
@@ -62,9 +64,103 @@ A stateful object contains states that determine its behavior. Therefore, the `c
 
 You can also create a substate and set it as current in one function.
 
-	var default = state.addCurrentState("default");
-	state.currentState() === default; // true
+	var disabled = state.addCurrentState("disabled");
+	state.currentState() === disabled; // true
 
+Once a current state is set, it's part of what I call the 'state chain'. This is especially important when there are states within states which we'll discuss later. The state at the bottom of the state chain, the one with no parent states, is called the 'root' state.
+
+#### Setting `enter()` and `exit()` functions for states
+
+Sometimes you want to trigger an action when switching states. To execute a function (like a callback) when you enter or exit simply define a function called `enter()` or `exit()` on the state. These functions will be automatically called when the state changes to or from that state.
+
+	var sub = new commonwealth.State("submarine");
+
+	var periscopeDepth = sub.addSubstate("periscopeDepth");
+	periscopeDepth.enter = function () {
+		// depth to 10m
+		// raise scope
+	};
+	periscopeDepth.exit = function () {
+		// retract scope
+	};
+
+	var silentRunning = sub.addSubstate("silentRunning");
+	silentRunning.enter = function () {
+		// disable sonar
+	};
+	silentRunning.exit = function () {
+		// enable sonar
+	};
+
+	sub.currentState(periscopeDepth); // depth to 10m, raise periscope (enter)
+	sub.currentState(silentRunning); // retract scope (exit), disable sonar (enter).
+
+### Adding methods to the state composite
+
+Switching states around is not that exciting unless the behaviour of your program changes too. You can add methods to your state object that automatically are handled by the current state using `addStateMethod()`.
+
+	var calculator = new commonwealth.State("calculator");
+	var add = calculator.addSubstate("add");
+	var multiply = calculator.addSubstate("multiply");
+
+	// Add a method to the calculator called calculate.
+	calculator.addStateMethod("calculate");
+
+	// Define the function in the substates.
+	// Use addStateMethod() on the substate.
+	add.addStateMethod(function calculate (a, b) {
+		return a + b;
+	});
+
+	// Or just set the function directly.
+	multiply.calculate = function (a, b) { return a * b; };
+
+	// Executing the method on the root state will call the function
+	// on the current state.
+	calculator.currentState("add");
+	calculator.calculate(2,4); // returns 6
+
+	calculator.currentState("multiply");
+	calculator.calculate(2,4); // returns 8
+
+	// If there is no substate, the function will return null.
+	calculator.setCurrentState(null);
+	calculator.calculate(2,4); // returns null since there is no default.
+
+#### Default Methods
+
+You can also provide a method that is executed by default when there is no substate set or when the substate doesn't support the method. You can do this by passing a **named** function to `addStateMethod()`.
+
+	var greeter = new commonwealth.State("greeter");
+	greeter.addStateMethod(function sayHello (name) {
+		return "Hello, " + name + ".";
+	});
+	greeter.addSubstate("happy").addStateMethod(function sayHello(name) {
+		return "Omigosh, HEY, " + name + ", how's it going!?";
+	});
+	greeter.addSubstate("sad").addStateMethod(function sayHello(name) {
+		return "Oh hi, " + name + "... whatever.";
+	});
+
+	// When currentState is null, use the default function.
+	greeter.sayHello("Dave"); // Hello, Dave.
+
+	// Dave says something very hurtful.
+
+	greeter.setCurrentState("sad");
+	greeter.sayHello("Brian"); // Oh hi, Brian... whatever.
+
+### Sharing values between states
+
+Since you may often want to share some data between states, there are shortcut methods for getting and setting properties. Use `set(prop, val)` to set a property and `get(prop)` to retrive it. The values are shared amongst all the states in the state chain.
+
+	var car = new commonwealth.State("car");
+	var driving = car.addCurrentState("driving");
+
+	car.set("speed", 40);
+
+	// the speed is available from the driving state
+	driving.get("speed"); // 40
 
 
 <a id="json"></a>

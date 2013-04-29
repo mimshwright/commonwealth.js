@@ -523,3 +523,114 @@ test( "History functions", function () {
     history.clear();
     equal (history.states.length, 0, "Calling clear() clears the history.");
 });
+
+module("Manual examples");
+
+test ("addSubstate", function () {
+	var state = new commonwealth.State();
+	var onState = state.addSubstate("on");
+	var offState = state.addSubstate("off");
+
+	state.getCurrentState(); // By default, current state is null
+	//////
+	equal (state.getCurrentState(), null);
+	//////
+	state.setCurrentState(onState);
+
+	// You can use just the name of the state instead of the state
+	// object if it's been added as a substate.
+	state.setCurrentState("off");
+	//////
+	equal(state.getCurrentState(), offState);
+	//////
+	state.getCurrentState() === offState; // true
+
+	// jQuery style syntax also works.
+	state.currentState(); // onState
+	state.currentState(onState); // same as setCurrentState(onState)
+
+	var disabled = state.addCurrentState("disabled");
+	//////
+	equal(state.currentState(), disabled);
+	//////
+	state.currentState() === disabled; // true
+});
+
+test ("addStateMethod", function () {
+	var calculator = new commonwealth.State("calculator");
+	var add = calculator.addSubstate("add");
+	var multiply = calculator.addSubstate("multiply");
+
+	// Add a method to the calculator called calculate.
+	calculator.addStateMethod("calculate");
+
+	// Define the function in the substates.
+	// Use addStateMethod() on the substate.
+	add.addStateMethod(function calculate (a, b) {
+		return a + b;
+	});
+
+	// Or just set the function directly.
+	multiply.calculate = function (a, b) { return a * b; };
+
+	// Executing the method on the root state will call the function
+	// on the current state.
+	calculator.currentState("add");
+	//////
+	equal (calculator.calculate(2,4), 6);
+	//////
+	calculator.calculate(2,4); // returns 6
+
+
+	calculator.currentState("multiply");
+	//////
+	equal (calculator.calculate(2,4), 8);
+	//////
+	calculator.calculate(2,4); // returns 8
+
+	// If there is no substate, the function will return null.
+	calculator.setCurrentState(null);
+	//////
+	equal (calculator.calculate(2,4), null);
+	//////
+	calculator.calculate(2,4); // returns null since there is no default.
+
+
+	var greeter = new commonwealth.State("greeter");
+	greeter.addStateMethod(function sayHello (name) {
+		return "Hello, " + name + ".";
+	});
+
+	greeter.addSubstate("happy").addStateMethod(function sayHello(name) {
+		return "Omigosh, HEY, " + name + ", how's it going!?";
+	});
+	greeter.addSubstate("sad").addStateMethod(function sayHello(name) {
+		return "Oh hi, " + name + "... whatever.";
+	});
+
+	//////
+	equal (greeter.sayHello("Dave"), "Hello, Dave.");
+	//////
+	// When currentState is null, use the default function.
+	greeter.sayHello("Dave"); // Hello, Dave.
+
+	// Dave says something very hurtful.
+
+	greeter.setCurrentState("sad");
+	//////
+	equal (greeter.sayHello("Brian"), "Oh hi, Brian... whatever.");
+	//////
+	greeter.sayHello("Brian"); // Oh hi, Brian... whatever.
+});
+
+test ("get() and set()", function () {
+	var car = new commonwealth.State("car");
+	var driving = car.addCurrentState("driving");
+
+	car.set("speed", 40);
+	//////
+	equal(driving.get("speed"), 40);
+	//////
+	// the speed is available from the driving state
+	driving.get("speed"); // 40
+});
