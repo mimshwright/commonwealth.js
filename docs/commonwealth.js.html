@@ -53,17 +53,17 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
 
 
 /**
- * State is the main class in commonwealth. It represents an
+ * &lt;p>State is the main class in commonwealth. It represents an
  * object that is both a state container and a state.
  * It is a composite state object.
- * For example, this may represent the backend for a login button
+ * For example, this may represent the controller for a login button
  * that contains two states, loggedIn and loggedOut which are also
- * both instances of State.
+ * both instances of State.&lt;/p>
  *
- * About JSON format:
+ * &lt;b>About JSON format:&lt;/b>&lt;br />
  *
- * A json object can be passed into the constructor to create the
- * intial values for your state object. The format looks like this:
+ * &lt;p>A json object can be passed into the constructor to create the
+ * intial values for your state object. The format looks like this:&lt;/p>
  * &lt;pre>
 {
     name: "string", // only required field
@@ -244,14 +244,23 @@ commonwealth.State.prototype.setCurrentState = function setCurrentState (newStat
 
             // reset the newState to default if desired.
             if (newState.resetOnEnter) {
-                newState.setCurrentState(newState.defaultState);
+                newState.reset();
             }
             if (_.hasMethod(newState, "enter")) {
                 newState.enter();
             }
         }
+
+        // todo: document this feature somehow
+        if (commonwealth.utils.hasMethod(this, "onStateChange")) {
+            this.onStateChange(oldState, newState);
+        }
     }
     return this._currentState;
+};
+
+commonwealth.State.prototype.reset = function reset() {
+    return this.setCurrentState(this.defaultState);
 };
 
 
@@ -507,7 +516,7 @@ commonwealth.State.prototype.addStateMethod = function addStateMethod (methodNam
  *
  * @param message {string} A message that is broadcast.
  */
-commonwealth.State.prototype.dispatch = function (message) {
+commonwealth.State.prototype.trigger = function (message) {
     var handlers = this._handlers[message],
         handler,
         current;
@@ -522,13 +531,13 @@ commonwealth.State.prototype.dispatch = function (message) {
     // Bubble events up to substates
     current = this.currentState();
     if (current) {
-        current.dispatch(message);
+        current.trigger(message);
     }
 };
 
 /**
  * Registers a function that is called when a signal is dispatched
- * using dispatch().
+ * using trigger().
  *
  * @this {commonwealth.State}
  *
@@ -545,15 +554,15 @@ commonwealth.State.prototype.on = function on (signal, handler) {
 
 /**
  * Registers a one or more state changes that occur when a message is
- * dispatched using dispatch(). Also, this automatically registers a
- * method that dispatches the event for you (using addStateMethod()).
- * Once a transition is registered, you can use either dispatch() or
+ * dispatched using trigger(). Also, this automatically registers a
+ * method that triggers the event for you (using addStateMethod()).
+ * Once a transition is registered, you can use either trigger() or
  * the generated method to transition.
- * e.g. dispatch("foo"); or foo();
+ * e.g. trigger("foo"); or foo();
  *
  * The map of state changes is an object with names of states paired
  * with the state they should change to when the transition event is
- * dispatched. "*" can be used on the left side to match any state.
+ * triggered. "*" can be used on the left side to match any state.
  * `null` can be used to transition TO "no state" and the string "null"
  * can be used to transition FROM the null state.
  *
@@ -650,8 +659,6 @@ commonwealth.utils = {
         parseName : function parseName(json) {
             if (json && commonwealth.utils.isString(json.name)) {
                 return json.name;
-            } else {
-                throw commonwealth.INVALID_STATE_ID_ERROR;
             }
         },
         /**
@@ -702,10 +709,24 @@ commonwealth.utils = {
                 for (var name in json.states) {
                     stateJSON = json.states[name];
                     substate = new commonwealth.State(stateJSON);
+                    // set name if it wasn't explicitly defined in json.
+                    substate.name = substate.name || name;
                     state.addSubstate(substate);
                 }
             }
         },
+
+        /**
+         * @static
+         */
+        parseSet : function parseSet (state, json) {
+            if (json && json.set) {
+                for (var name in json.set) {
+                    state.set(name, json.set[name]);
+                }
+            }
+        },
+
         /**
          * @static
          */
@@ -720,10 +741,13 @@ commonwealth.utils = {
             // more complex recursive parsing.
             this.parseMethods(state, json);
             this.parseStates(state,json);
+            this.parseSet (state, json);
 
             for (message in json.transitions) {
                 state.addTransition(message, json.transitions[message]);
             }
+
+            state.onStateChange = json.onStateChange;
             state.setCurrentState(this.parseDefaultState(json));
             state.defaultState = state.getCurrentState();
             state.resetOnEnter = json.resetOnEnter;
@@ -850,7 +874,7 @@ commonwealth.History.prototype.toString = function toString () {
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Wed Apr 10 2013 19:34:23 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 29 2013 10:07:35 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

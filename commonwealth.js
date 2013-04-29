@@ -489,7 +489,7 @@ commonwealth.State.prototype.addStateMethod = function addStateMethod (methodNam
  *
  * @param message {string} A message that is broadcast.
  */
-commonwealth.State.prototype.dispatch = function (message) {
+commonwealth.State.prototype.trigger = function (message) {
     var handlers = this._handlers[message],
         handler,
         current;
@@ -504,13 +504,13 @@ commonwealth.State.prototype.dispatch = function (message) {
     // Bubble events up to substates
     current = this.currentState();
     if (current) {
-        current.dispatch(message);
+        current.trigger(message);
     }
 };
 
 /**
  * Registers a function that is called when a signal is dispatched
- * using dispatch().
+ * using trigger().
  *
  * @this {commonwealth.State}
  *
@@ -527,15 +527,15 @@ commonwealth.State.prototype.on = function on (signal, handler) {
 
 /**
  * Registers a one or more state changes that occur when a message is
- * dispatched using dispatch(). Also, this automatically registers a
- * method that dispatches the event for you (using addStateMethod()).
- * Once a transition is registered, you can use either dispatch() or
+ * dispatched using trigger(). Also, this automatically registers a
+ * method that triggers the event for you (using addStateMethod()).
+ * Once a transition is registered, you can use either trigger() or
  * the generated method to transition.
- * e.g. dispatch("foo"); or foo();
+ * e.g. trigger("foo"); or foo();
  *
  * The map of state changes is an object with names of states paired
  * with the state they should change to when the transition event is
- * dispatched. "*" can be used on the left side to match any state.
+ * triggered. "*" can be used on the left side to match any state.
  * `null` can be used to transition TO "no state" and the string "null"
  * can be used to transition FROM the null state.
  *

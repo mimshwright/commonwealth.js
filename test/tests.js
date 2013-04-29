@@ -352,19 +352,19 @@ test ("Message handlers", function () {
 		result = "Hallo";
 	});
 
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Hello", "Works for English." );
 
 	greeter.currentState("fr");
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Bonjour", "Works for French." );
 
 	greeter.currentState("de");
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Guten tag", "Works for nested German." );
 
 	de.currentState("casual");
-	greeter.dispatch(message);
+	greeter.trigger(message);
 	equal(result, "Hallo", "Works for nested German." );
 
 });
@@ -384,30 +384,30 @@ test ("Transitions", function () {
 	son.addSubstate("granddaughter");
 
 	equal (parent.currentState(), son, "Start with son.");
-	parent.dispatch("changeGender");
+	parent.trigger("changeGender");
 	equal (parent.currentState(), daughter, "Changed state with transition.");
 	changeGenderFunc.call(parent);
 	equal (parent.currentState(), son, "Transitions happen based on context. Transitions can be triggered with a method call too. addTransition() returns a reference to the generated function.");
 	parent.currentState(stepDaughter);
-	parent.dispatch("firstSon");
+	parent.trigger("firstSon");
 	equal (parent.currentState(), son, "Wildcard transitions with *.");
 	parent.currentState(stepDaughter);
 	parent.addTransition("changeGender", {"stepDaughter":"son"});
-	parent.dispatch("changeGender"); // stepDaughter -> son
-	parent.dispatch("changeGender"); // son -> daughter
+	parent.trigger("changeGender"); // stepDaughter -> son
+	parent.trigger("changeGender"); // son -> daughter
 	equal (parent.currentState().name, "daughter", "You can add transitions after one has been defined already and it won't affect the old ones (although one may overwrite the other if not careful).");
 	parent.currentState("son");
-	parent.dispatch("changeGrandchildGender");
+	parent.trigger("changeGrandchildGender");
 	equal (son.currentState().name, "granddaughter", "Works with nested states.");
 	parent.currentState("daughter");
-	parent.dispatch("changeGrandchildGender");
+	parent.trigger("changeGrandchildGender");
 	equal (son.currentState().name, "granddaughter", "Nested states are only affected if they're in the current state chain.");
-	parent.dispatch("foo");
+	parent.trigger("foo");
 	equal (parent.currentState(), daughter, "Unregistered transitions do nothing.");
 	parent.setCurrentState("son");
-	parent.dispatch("sonNullNullSon");
+	parent.trigger("sonNullNullSon");
 	equal(parent.currentState(), null, "You can transition to null.");
-	parent.dispatch("sonNullNullSon");
+	parent.trigger("sonNullNullSon");
 	equal(parent.currentState().name, "son", "You can transition from null.");
 });
 
@@ -470,7 +470,7 @@ test ("Creating new states with JSON", function () {
 	state.currentState("daughter");
 	equal(result, "son exited" , "enter() function set with json.");
 	equal(state.greet(), "sally", "Methods are defined with json. Also nesting works!");
-	state.dispatch("changeGender");
+	state.trigger("changeGender");
 	equal(state.currentState().name, "son", "Transitions can be added through json.");
 	equal(state.get("foo"), "bar", "Set works on root.");
 	equal(state.currentState().get("foo"), "bar", "Set works on children.");

@@ -49,17 +49,17 @@
     
     
     <div class="description">
-        State is the main class in commonwealth. It represents an
+        <p>State is the main class in commonwealth. It represents an
 object that is both a state container and a state.
 It is a composite state object.
-For example, this may represent the backend for a login button
+For example, this may represent the controller for a login button
 that contains two states, loggedIn and loggedOut which are also
-both instances of State.
+both instances of State.</p>
 
-About JSON format:
+<b>About JSON format:</b><br />
 
-A json object can be passed into the constructor to create the
-intial values for your state object. The format looks like this:
+<p>A json object can be passed into the constructor to create the
+intial values for your state object. The format looks like this:</p>
 <pre>
 {
     name: "string", // only required field
@@ -582,7 +582,7 @@ substates.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 328
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 337
     </li></ul></dd>
     
     
@@ -770,7 +770,7 @@ is ultimately used).
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 404
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 413
     </li></ul></dd>
     
     
@@ -892,7 +892,7 @@ the name parameter.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 291
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 300
     </li></ul></dd>
     
     
@@ -970,15 +970,15 @@ the name parameter.
     
     <div class="description">
         Registers a one or more state changes that occur when a message is
-dispatched using dispatch(). Also, this automatically registers a
-method that dispatches the event for you (using addStateMethod()).
-Once a transition is registered, you can use either dispatch() or
+dispatched using trigger(). Also, this automatically registers a
+method that triggers the event for you (using addStateMethod()).
+Once a transition is registered, you can use either trigger() or
 the generated method to transition.
-e.g. dispatch("foo"); or foo();
+e.g. trigger("foo"); or foo();
 
 The map of state changes is an object with names of states paired
 with the state they should change to when the transition event is
-dispatched. "*" can be used on the left side to match any state.
+triggered. "*" can be used on the left side to match any state.
 `null` can be used to transition TO "no state" and the string "null"
 can be used to transition FROM the null state.
     </div>
@@ -1088,7 +1088,7 @@ can be used to transition FROM the null state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 540
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 549
     </li></ul></dd>
     
     
@@ -1236,7 +1236,7 @@ can be used to transition FROM the null state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 243
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 252
     </li></ul></dd>
     
     
@@ -1279,126 +1279,6 @@ can be used to transition FROM the null state.
 </dl>
 
         
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="dispatch"><span class="type-signature"></span>dispatch<span class="signature">(message)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Dispatches a message to all of the children in the state chain.
-    </div>
-    
-
-    
-    
-    
-        <h5>This:</h5>
-        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>message</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last">A message that is broadcast.</td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 483
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
     
     
 </dd>
@@ -1451,7 +1331,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 259
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 268
     </li></ul></dd>
     
     
@@ -1591,7 +1471,7 @@ See also #set()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 371
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 380
     </li></ul></dd>
     
     
@@ -1775,7 +1655,7 @@ See also #set()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 275
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 284
     </li></ul></dd>
     
     
@@ -1953,7 +1833,7 @@ but keep in mind that values may get overridden.
     
     <div class="description">
         Registers a function that is called when a signal is dispatched
-using dispatch().
+using trigger().
     </div>
     
 
@@ -2061,7 +1941,7 @@ using dispatch().
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 512
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 521
     </li></ul></dd>
     
     
@@ -2135,7 +2015,7 @@ If there is no parent state, returns null.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 342
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 351
     </li></ul></dd>
     
     
@@ -2230,7 +2110,7 @@ If there is no parent state, returns itself.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 353
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 362
     </li></ul></dd>
     
     
@@ -2397,7 +2277,7 @@ See also #get()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 386
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 395
     </li></ul></dd>
     
     
@@ -2635,7 +2515,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 579
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 588
     </li></ul></dd>
     
     
@@ -2722,7 +2602,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 569
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 578
     </li></ul></dd>
     
     
@@ -2765,6 +2645,126 @@ with the object's root state and extending to the finalCurrentState.
     
 </dd>
 
+        
+            
+<dt>
+    <h4 class="name" id="trigger"><span class="type-signature"></span>trigger<span class="signature">(message)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Dispatches a message to all of the children in the state chain.
+    </div>
+    
+
+    
+    
+    
+        <h5>This:</h5>
+        <ul><li>{<a href="commonwealth.State.html">commonwealth.State</a>}</li></ul>
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A message that is broadcast.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 492
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
         </dl>
     
     
@@ -2787,7 +2787,7 @@ with the object's root state and extending to the finalCurrentState.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Wed Apr 10 2013 19:34:23 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 29 2013 10:07:36 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
