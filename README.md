@@ -24,7 +24,7 @@ An implementation of [hierarchical state machines](http://bears.ece.ucsb.edu/cla
 - ~~Check for infinite loops~~
 - ~~Instructions for use~~
 - ~~Change name from stateful to something else (state?)~~
-- ~~Json parsing,  creating everything in one line~~
+- ~~Json parsing, creating everything in one line~~
 - Concurrent states
 - ~~Set values using set() in the json.~~
 - ~~onStateChanged()~~
@@ -40,6 +40,7 @@ An implementation of [hierarchical state machines](http://bears.ece.ucsb.edu/cla
 - Game demo
 - Form demo (idle, invalid, valid, submitting, confirmed)
 - State chart markup language support.
+- Remove listeners and substates and transitions.
 
 ### Why the name Commonwealth?
 Most names involving "states" or "state machines" were taken. Four of the states of the United States officially use the term "commonwealth" rather than "state." It's a unique name and also represents the open source nature of the project.

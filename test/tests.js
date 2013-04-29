@@ -338,7 +338,12 @@ test ("Message handlers", function () {
 
 	var message = "Say hello";
 	var result = "";
+	var called = 0;
 
+	greeter.on(message, function (message) {
+		// listen on the root to log every call
+		called++;
+	});
 	en.on(message, function (message) {
 		result = "Hello";
 	});
@@ -366,6 +371,7 @@ test ("Message handlers", function () {
 	de.currentState("casual");
 	greeter.trigger(message);
 	equal(result, "Hallo", "Works for nested German." );
+	equal(called, 4, "Trigger calls every listener every time." );
 
 });
 
@@ -634,4 +640,60 @@ test ("get() and set()", function () {
 	//////
 	// the speed is available from the driving state
 	driving.get("speed"); // 40
+});
+
+test ("messages", function () {
+	var state = new commonwealth.State();
+	var child = state.addCurrentState("child");
+	var result = "";
+
+	// return the child's name on the "sayName" event.
+	child.on("sayName", function () {
+		result = this.name;
+	});
+
+	// trigger the "sayName" event.
+	state.trigger("sayName");
+	//////
+	equal(result, "child");
+	//////
+	result === "child"; // true
+});
+
+test ("json", function () {
+	var trafficLight = new commonwealth.State({
+		"name": "trafficLight",
+		"states": {
+			"on": {
+				"enter": function () {
+					var id = setInterval(function () {
+						this.trigger("change");
+					}, 1000);
+					this.set("id", id);
+				},
+				"exit" : function () {
+					clearInterval(this.get(id));
+				},
+				states : {
+					"red": {},
+					"green": {},
+					"yellow": {}
+				},
+				defaultState: "red",
+				transitions : {
+					"change": {"red":"green", "green":"yellow", "yellow":"red"}
+				},
+				onStateChange: function (oldState, newState) {
+					console.log(newState.name);
+				}
+			},
+			"off": {}
+		},
+		"transitions" : {
+			"on": {"*":"on"},
+			"off": {"*":"off"}
+		}
+	});
+
+	trafficLight.trigger("on");
 });

@@ -46,8 +46,11 @@ commonwealth.INFINITE_LOOP_ERROR = {message: "Adding this state would create a c
                                // the default substate.
     resetOnEnter: true, // true or false. Sets the resetOnEnter property.
     methods: {...}, // 1 or more methods to add using #addStateMethod()
-    transitions: {...}  // 1 or more transitions using the same syntax as
+    transitions: {...},  // 1 or more transitions using the same syntax as
                         // #addTransition()
+    onStateChange: function (){...}, // define onStateChange, enter, or exit
+    enter: function (){...},
+    exit: function (){...}
 }
  *
  *

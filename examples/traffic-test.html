@@ -91,7 +91,7 @@
 					newState ? $("#" + newState.name).show() : null;
 					if ( newState ) {
 						interval = setTimeout(function () {
-							trafficController.dispatch("change");
+							trafficController.trigger("change");
 						}, 1000);
 					} else {
 						clearInterval(interval);
@@ -124,7 +124,7 @@
 			});
 
 			$("#power").on("click", function () {
-				trafficController.dispatch("power");
+				trafficController.trigger("power");
 			})
 
 		});

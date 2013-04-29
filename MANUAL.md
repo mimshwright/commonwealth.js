@@ -168,16 +168,50 @@ Since you may often want to share some data between states, there are shortcut m
 
 ### Messages & handlers
 
-Commonwealth has a simple solution for sending messages between states in the state chain. This allows states to respond to events that happen within the construct. This works very similarly to the `addStateMethod()` function but with a little more flexibility.
+Commonwealth can send messages between states in the state chain. This allows states to respond to custom events. Unlike the state methods, all handler functions in the are called when an event is dispatched.
+
+	var state = new commonwealth.State();
+	var child = state.addCurrentState("child");
+	var result = "";
+
+	// return the child's name on the "sayName" event.
+	child.on("sayName", function () {
+		result = this.name;
+	});
+
+	// trigger the "sayName" event.
+	state.trigger("sayName");
+	result === "child"; // true
 
 #### Transitions
 
 Perhaps the most important thing you might to with a message handler is to trigger a state transition. Transition in this case simply means changing the current state, not an animation. This is very easy to set up in commonwealth. Use the method `addTransition()` to define one or more transitions that are triggered by a message. The syntax looks like this:
 
-	state.addTransition("message", {"from":"to"});
+	state.addTransition("message", {"from":"to", "anotherFrom":"anotherTo"});
 
-The first value is the message that will trigger the transition. The second is an object containing one or more pairs of states that will change. You can add as many transitions for each message as you like. If you want to cause _all_ states to transition to another state, you can use a `*` as in `{"*":"foo"}`.
+The first value is the message that will trigger the transition. The second is an object containing one or more pairs of states that will change. You can add as many transitions for each message as you like. If you want to cause a transition from _all_ states to another state, you can use a `*` as in `{"*":"foo"}`.
 
+	var trafficLight = new commonwealth.State();
+	var red = trafficLight.addCurrentState("red");
+	var yellow = trafficLight.addSubstate("yellow");
+	var green = trafficLight.addSubstate("green");
+
+	// when the "change" event is triggered, cycle colors.
+	trafficLight.addTransition("change", {"red":"green", "green":"yellow", "yellow":"red"});
+
+	// trigger a change event every 1 second
+	setInterval(function () {
+		trafficLight.trigger("change");
+	}, 1000);
+
+#### onStateChange
+
+There's a special event handler which is called every time the currentState changes. To use it, just define a function on your state called `onStateChange` with two arguments for the old and new state.
+
+	var state = new commonwealth.State();
+	state.onStateChange = function (oldState, newState) {
+		console.log(oldState, " -> ", newState);
+	};
 
 <a id="json"></a>
 ### Creating States with JSON
@@ -201,9 +235,13 @@ Now that you've learned all the core functionality of the `State` class, I'll sh
 
 	    "transitions": {...}  			// 1 or more transitions using the same syntax as
 	                          			// addTransition()
+
+	    onStateChange: function (){...},// define onStateChange, enter, or exit
+    	enter: function (){...},
+    	exit: function (){...}
 	}
 
-	// "methods" syntax:
+	// Add state methods with this syntax:
 	{
 		"methodName": function () {
 			// function body
@@ -211,7 +249,7 @@ Now that you've learned all the core functionality of the `State` class, I'll sh
 		... // more methods
 	}
 
-	// "transitions" syntax:
+	// Add transitions with this syntax:
 	{
 		"signalName" : {
 			"fromState":"toState",
@@ -221,6 +259,136 @@ Now that you've learned all the core functionality of the `State` class, I'll sh
 		},
 		... // more signals
 	}
+
+Here's an example that creates a traffic light with nested states, transitions and everything, all within a single function call. Read through the comments for the details.
+
+	// create a traffic light with a configuration object.
+	var trafficLight = new commonwealth.State({
+		// give the traffic light a name.
+		"name": "trafficLight",
+
+		// define the states within the traffic light
+		"states": {
+			// the first state, "off", doesn't do much
+			"off": {},
+
+			// the second state, "on", has lots of stuff going on
+			// and even has nested states within it.
+			"on": {
+
+				// Define the nested states within the "on" state.
+				"states" : {
+					"red": {},
+					"green": {},
+					"yellow": {}
+				},
+
+				// Define the function that is called when this state
+				// becomes active.
+				"enter": function () {
+
+					// Sets up a timer that triggers the "change"
+					// event every 1 second.
+					var id = setInterval(function () {
+						trafficLight.trigger("change");
+					}, 1000);
+
+					// store the interval id so you can clear it later.
+					trafficLight.set("id", id);
+				},
+
+				// Define the function that gets called when the state is exited.
+				"exit" : function () {
+					// Stop the timer.
+					clearInterval(trafficLight.get(id));
+				},
+
+				// Setting "defaultState" makes it the currentState
+				// when the program starts.
+				defaultState: "red",
+
+				// Define the transitions so they go in a cycle.
+				transitions : {
+					"change": {"red":"green", "green":"yellow", "yellow":"red"}
+				},
+
+				// When the state changes, log the name of the new
+				// state.
+				onStateChange: function (oldState, newState) {
+					console.log(newState.name);
+				}
+			}
+		},
+
+		// Define transitions for trafficLight.
+		// "on" always goes to the "on" state.
+		// "off" always goes to the "off" state.
+		"transitions" : {
+			"on": {"*":"on"},
+			"off": {"*":"off"}
+		}
+	});
+
+	// Kick things off by turning "on" the light.
+	trafficLight.trigger("on");
+
+To see a more polished version of this example, check out the [Traffic Controller example](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/blob/master/examples/traffic-test.html) ([source code](https://github.com/mimshwright/commonwealth.js/blob/master/examples/traffic-test.html))
+
+### Working with nested state composites
+
+In the previous example, we created a traffic light with nested states (e.g. `trafficLight -> on -> red`). Nesting states is as easy as adding a substate to a substate but there are a few other features that help when dealing with state hierarchies.
+
+#### Calling methods on nested states
+
+When you have a nested state, methods are always called on the most distant child state that supports the method. If a state doesn't support the method, an attempt will be made to call the default method on its parent state. If no classes support the method, nothing happens.
+
+	var A = new commonwealth.State("A");
+	var B = A.addCurrentState("B")
+	var C = B.addCurrentState("C");
+
+	A.addStateMethod("a");
+	A.addStateMethod("bar");
+	A.addStateMethod("baz");
+
+	C.addStateMethod(function foo () {
+		console.log("C:foo");
+	});
+
+	B.addStateMethod(function bar() {
+		console.log("B:bar");
+	});
+
+	A.foo(); // C:foo
+	A.bar(); // B:bar
+	A.baz(); // nothing happens
+
+#### `parentState()`, `rootState()` and `finalCurrentState()`
+
+You've already learned about `currentState()`, now we'll look at a few other methods for finding states in the state chain. For all of these examples, assume we have a state `A` with a current state of `B` and `B`'s current state is `C`.
+
+	var A = new commonwealth.State("A");
+	var B = A.addCurrentState("B")
+	var C = B.addCurrentState("C");
+
+- `parentState()` returns the parent state of a substate. So if `A`'s current state is `B`, `B.parentState()` is `A`. `A.parentState()` is `null` since it has no parent.
+- `rootState()` is the first state in the chain. So if `A`'s current state is `B` and `B`'s current state is `C`, then `C.rootState()` is `A`. `A.rootState()` is also `A`.
+- `finalCurrentState()` returns the state at the end or the state chain. `A.finalCurrentState()` is `C`. `C.finalCurrentState()` is also `C`.
+
+#### Checking the state chain
+
+If you need to get a quick look at the current structure of the state chain, you can use the `stateChainToArray()` method.
+
+	A.stateChainToArray(); // [A,B,C]
+	
+	// This method works from any point in the chain.
+	B.stateChainToArray(); // [A,B,C]
+	C.stateChainToArray(); // [A,B,C]
+
+## Conclusion
+
+Hopefully by now you can see how quickly you can construct powerful and complex state composites. Unfortunately, I could not cover every detail of Commonwealth here. If you're interested in learning more, check out the [JSDoc documentation](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/blob/master/docs/index.html) and the other [examples](http://github.com/mimshwright/commonwealth.js/blob/master/examples/).
+
+If you think this document could be improved in any way, please create an issue in Github or do a pull request. Thanks!
 
 <a id="concepts"></a>
 ## Appendix A: The State Pattern and other Important Concepts

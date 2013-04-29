@@ -69,8 +69,11 @@ intial values for your state object. The format looks like this:</p>
                                // the default substate.
     resetOnEnter: true, // true or false. Sets the resetOnEnter property.
     methods: {...}, // 1 or more methods to add using #addStateMethod()
-    transitions: {...}  // 1 or more transitions using the same syntax as
+    transitions: {...},  // 1 or more transitions using the same syntax as
                         // #addTransition()
+    onStateChange: function (){...}, // define onStateChange, enter, or exit
+    enter: function (){...},
+    exit: function (){...}
 }
     </div>
     
@@ -170,7 +173,7 @@ intial values for your state object. The format looks like this:</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 60
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 63
     </li></ul></dd>
     
     
@@ -249,7 +252,7 @@ of the state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 88
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 91
     </li></ul></dd>
     
     
@@ -303,7 +306,7 @@ set on the State object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 108
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 111
     </li></ul></dd>
     
     
@@ -357,7 +360,7 @@ by reference.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 78
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 81
     </li></ul></dd>
     
     
@@ -410,7 +413,7 @@ when it is set as the currentState for a parent state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 98
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 101
     </li></ul></dd>
     
     
@@ -463,7 +466,7 @@ substates.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 69
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 72
     </li></ul></dd>
     
     
@@ -582,7 +585,7 @@ substates.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 337
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 340
     </li></ul></dd>
     
     
@@ -770,7 +773,7 @@ is ultimately used).
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 413
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 416
     </li></ul></dd>
     
     
@@ -892,7 +895,7 @@ the name parameter.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 300
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 303
     </li></ul></dd>
     
     
@@ -1088,7 +1091,7 @@ can be used to transition FROM the null state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 549
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 552
     </li></ul></dd>
     
     
@@ -1236,7 +1239,7 @@ can be used to transition FROM the null state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 252
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 255
     </li></ul></dd>
     
     
@@ -1331,7 +1334,7 @@ or returns `this`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 268
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 271
     </li></ul></dd>
     
     
@@ -1471,7 +1474,7 @@ See also #set()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 380
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 383
     </li></ul></dd>
     
     
@@ -1565,7 +1568,7 @@ See also #set()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 171
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 174
     </li></ul></dd>
     
     
@@ -1655,7 +1658,7 @@ See also #set()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 284
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 287
     </li></ul></dd>
     
     
@@ -1796,7 +1799,7 @@ but keep in mind that values may get overridden.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 159
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 162
     </li></ul></dd>
     
     
@@ -1941,7 +1944,7 @@ using trigger().
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 521
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 524
     </li></ul></dd>
     
     
@@ -2015,7 +2018,7 @@ If there is no parent state, returns null.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 351
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 354
     </li></ul></dd>
     
     
@@ -2110,7 +2113,7 @@ If there is no parent state, returns itself.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 362
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 365
     </li></ul></dd>
     
     
@@ -2277,7 +2280,7 @@ See also #get()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 395
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 398
     </li></ul></dd>
     
     
@@ -2423,7 +2426,7 @@ methods to enter and exit the state.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 185
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 188
     </li></ul></dd>
     
     
@@ -2515,7 +2518,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 588
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 591
     </li></ul></dd>
     
     
@@ -2602,7 +2605,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 578
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 581
     </li></ul></dd>
     
     
@@ -2740,7 +2743,7 @@ with the object's root state and extending to the finalCurrentState.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="commonwealth.js.html">commonwealth.js</a>, line 492
+        <a href="commonwealth.js.html">commonwealth.js</a>, line 495
     </li></ul></dd>
     
     
@@ -2787,7 +2790,7 @@ with the object's root state and extending to the finalCurrentState.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 29 2013 10:07:36 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Mon Apr 29 2013 13:44:53 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
