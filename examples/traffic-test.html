@@ -55,11 +55,17 @@
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script src="../commonwealth.js" type="text/javascript"></script>
 	<script>
-		//TODO: clean up and comment
 
 		$(function() {
-			// this json will be added to the traffic controller later.
+
+			var interval;
+
+			// This json is for the powered on state.
+			// It will be added to the traffic controller later.
 			var powerOnStateJSON = {
+
+				// Enter and exit are called when the state is
+				// activated or deactivated.
 				enter: function () {
 					this.get("view").html("off");
 					this.setCurrentState("go");
@@ -83,9 +89,13 @@
 					console.log("\tSignal: " + (newState ? newState.name : "-"));
 					oldState ? $("#" + oldState.name).hide() : null;
 					newState ? $("#" + newState.name).show() : null;
-					interval = setTimeout(function () {
-						trafficController.dispatch("change");
-					}, 1000);
+					if ( newState ) {
+						interval = setTimeout(function () {
+							trafficController.trigger("change");
+						}, 1000);
+					} else {
+						clearInterval(interval);
+					}
 				}
 			};
 
@@ -114,7 +124,7 @@
 			});
 
 			$("#power").on("click", function () {
-				trafficController.dispatch("power");
+				trafficController.trigger("power");
 			})
 
 		});
