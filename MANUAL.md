@@ -96,6 +96,8 @@ Sometimes you want to trigger an action when switching states. To execute a func
 	sub.currentState(silentRunning); // retract scope (exit), disable sonar (enter).
 	sub.setCurrentState(null); // enable sonar (exit)
 
+`enter` and `exit` functions are a good place to put code that animates the view during a state change.
+
 ### Adding methods to the state composite
 
 Switching states around is not that exciting unless the behaviour of your program changes too. You can add methods to your state object that automatically are handled by the current state using `addStateMethod()`.
@@ -162,6 +164,19 @@ Since you may often want to share some data between states, there are shortcut m
 
 	// the speed is available from the driving state
 	driving.get("speed"); // 40
+
+
+### Messages & handlers
+
+Commonwealth has a simple solution for sending messages between states in the state chain. This allows states to respond to events that happen within the construct. This works very similarly to the `addStateMethod()` function but with a little more flexibility.
+
+#### Transitions
+
+Perhaps the most important thing you might to with a message handler is to trigger a state transition. Transition in this case simply means changing the current state, not an animation. This is very easy to set up in commonwealth. Use the method `addTransition()` to define one or more transitions that are triggered by a message. The syntax looks like this:
+
+	state.addTransition("message", {"from":"to"});
+
+The first value is the message that will trigger the transition. The second is an object containing one or more pairs of states that will change. You can add as many transitions for each message as you like. If you want to cause _all_ states to transition to another state, you can use a `*` as in `{"*":"foo"}`.
 
 
 <a id="json"></a>
