@@ -16,7 +16,7 @@ An implementation of [hierarchical state machines](http://bears.ece.ucsb.edu/cla
 
 - [Manual](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/MANUAL.md)
 - [JSDoc](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/docs/index.html)
-- [Examples](https://github.com/mimshwright/commonwealth.js/blob/master/examples/index.html)
+- [Examples](https://htmlpreview.github.com/mimshwright/commonwealth.js/blob/master/examples/index.html)
 
 ## Roadmap
 
