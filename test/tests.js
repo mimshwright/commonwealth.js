@@ -13,7 +13,7 @@ module("Creating and setting States");
 test ("State constructor", function () {
 	var state = new c.State ("test");
 	ok (state, "Constructor works");
-	var state = c.State("test");
+	state = c.State("test");
 	ok (state, "Forgetting to use new still works.");
 	equal (state.name, "test", "Name property can be set by constructor.");
 });
@@ -383,7 +383,7 @@ test ("Transitions", function () {
 
 	var changeGenderFunc = parent.addTransition("changeGender", {"son":"daughter", "daughter":"son"} );
 	parent.addTransition("firstSon", {"*":"son"});
-	parent.addTransition("sonNullNullSon", {"son":null, null:"son"});
+	parent.addTransition("sonNullNullSon", {"son":null, "null":"son"});
 
 	son.addTransition("changeGrandchildGender", {"grandson": "granddaughter", "granddaughter": "grandson"});
 	son.addCurrentState("grandson");
@@ -666,13 +666,8 @@ test ("json", function () {
 		"states": {
 			"on": {
 				"enter": function () {
-					var id = setInterval(function () {
-						this.trigger("change");
-					}, 1000);
-					this.set("id", id);
 				},
 				"exit" : function () {
-					clearInterval(this.get(id));
 				},
 				states : {
 					"red": {},
@@ -695,5 +690,10 @@ test ("json", function () {
 		}
 	});
 
+	equal(trafficLight.currentState(), null, "No state at first");
 	trafficLight.trigger("on");
+	equal(trafficLight.currentState().name, "on", "Triggering 'on' goes to on state.");
+	equal(trafficLight.states.on.currentState().name, "red", "On's state got the default state of red.");
+	trafficLight.trigger("change");
+	equal(trafficLight.states.on.currentState().name, "green", "Triggering 'change' changes traffic light 'on' state's state.");
 });
