@@ -16,7 +16,7 @@ An implementation of [hierarchical state machines](http://bears.ece.ucsb.edu/cla
 
 - [Manual](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/MANUAL.md)
 - [JSDoc](http://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/master/docs/index.html)
-- [Examples](https://github.com/mimshwright/commonwealth.js/blob/master/examples/index.html)
+- [Examples](https://htmlpreview.github.com/?http://github.com/mimshwright/commonwealth.js/blob/master/examples/index.html)
 
 ## Roadmap
 
@@ -44,3 +44,6 @@ An implementation of [hierarchical state machines](http://bears.ece.ucsb.edu/cla
 
 ### Why the name Commonwealth?
 Most names involving "states" or "state machines" were taken. Four of the states of the United States officially use the term "commonwealth" rather than "state." It's a unique name and also represents the open source nature of the project.
+
+<!-- GA Tracker -->
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/c0abe5be25aae957901bf068e4c07c8f "githalytics.com")](http://githalytics.com/mimshwright/commonwealth.js)
