@@ -3,6 +3,12 @@
  */
 var commonwealth = commonwealth || {};
 
+// Support AMD
+if ( typeof define === "function" && define.amd ) {
+    define( "commonwealth", [], function() {
+        return commonwealth;
+    });
+}
 
 /**
  * An error thrown when a closure is used where a named function is expected.
